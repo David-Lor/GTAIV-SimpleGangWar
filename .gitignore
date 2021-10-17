@@ -1,0 +1,9 @@
+bin/
+obj/
+.vs/
+.vscode/
+.idea/
+*.csproj
+*.config
+*.sln*
+global.json

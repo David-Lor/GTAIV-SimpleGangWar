@@ -8,9 +8,9 @@ This is a port of [GTA V SimpleGangWar script](https://github.com/David-Lor/GTAV
 
 ## Installing
 
-**Prerrequisites**: ScriptHookDotNet and its requirements. I recommend downloading [LSPD:FR](https://www.lcpdfr.com/downloads/gta4mods/g17media/4607-lcpd-first-response-legacy-edition/), which bundles all the requirements. Tested on GTA IV version 1.2.0.43 (Steam+Rockstar version) on October 2021.
+**Prerrequisites**: GTA IV ScriptHookDotNet and its requirements. I recommend downloading [LCPD:FR](https://www.lcpdfr.com/downloads/gta4mods/g17media/4607-lcpd-first-response-legacy-edition/), which bundles all of the requirements. Tested on GTA IV version 1.2.0.43 (Steam+Rockstar version) in October 2021.
 
-**Installing**: put SimpleGangWar.cs and SimpleGangWar.ini into the `Grand Theft Auto IV/scripts` folder
+**Installing**: download the latest version (zip file) from [Releases](https://github.com/David-Lor/GTAIV-SimpleGangWar/releases). Extract and put SimpleGangWar.cs and SimpleGangWar.ini into the `Grand Theft Auto IV/scripts` folder
 
 ## Usage
 

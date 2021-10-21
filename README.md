@@ -31,6 +31,10 @@ At this moment, no .ini config file is supported. Configuration must be changed 
 ## Known bugs
 
 - First spawned peds may stand still and not fight. A possible workaround is to bump into them, or kill them.
+- Peds may not fight if spawnpoints are too far.
+- Usage during missions may cause different problems:
+  - Allies may not follow the player
+  - Mission and SimpleGangWar enemies may fight each other (this may be fixed when implementing the ProcessOtherRelationshipGroups feature)
 
 ## TODO
 

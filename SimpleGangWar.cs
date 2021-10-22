@@ -2,6 +2,7 @@
 using System;
 using System.Windows.Forms;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -117,9 +118,6 @@ namespace SimpleGangWar
             configString = config.GetValue(SettingsHeader.General, "SpawnHotkey", "");
             spawnHotkey = EnumParse(configString, spawnHotkey);
 
-            /*ScriptSettings config = ScriptSettings.Load("scripts\\SimpleGangWar.ini");
-            string configString;
-
             healthAllies = config.GetValue(SettingsHeader.Allies, "Health", healthAllies);
             healthEnemies = config.GetValue(SettingsHeader.Enemies, "Health", healthEnemies);
 
@@ -129,6 +127,7 @@ namespace SimpleGangWar
             accuracyAllies = config.GetValue(SettingsHeader.Allies, "Accuracy", accuracyAllies);
             accuracyEnemies = config.GetValue(SettingsHeader.Enemies, "Accuracy", accuracyEnemies);
 
+            /*
             configString = config.GetValue<string>(SettingsHeader.Allies, "CombatMovement", "");
             combatMovementAllies = EnumParse(configString, combatMovementAllies);
             configString = config.GetValue<string>(SettingsHeader.Enemies, "CombatMovement", "");
@@ -327,10 +326,20 @@ namespace SimpleGangWar
             ped.Weapons.Select(pedWeapon);
             ped.Weapons.Current.Ammo = Int32.MaxValue;
 
-            ped.Health = ped.MaxHealth = alliedTeam ? healthAllies : healthEnemies;
-            ped.Armor = alliedTeam ? armorAllies : armorEnemies;
+            int health = ped.MaxHealth = alliedTeam ? healthAllies : healthEnemies;
+            int armor = alliedTeam ? armorAllies : armorEnemies;
+            int accuracy = ped.Accuracy = alliedTeam ? accuracyAllies : accuracyEnemies;
+            if (health >= 0) {
+                ped.Health = health;
+            }
+            if (armor >= 0) {
+                ped.Armor = armor;
+            }
+            if (accuracy >= 0) {
+                ped.Accuracy = accuracy;
+            }
+
             ped.Money = 0;
-            ped.Accuracy = alliedTeam ? accuracyAllies : accuracyEnemies;
             ped.RelationshipGroup = alliedTeam ? RelationshipGroup.Player : relationshipGroupEnemies;
 
             if (showBlipsOnPeds)
@@ -571,16 +580,21 @@ namespace SimpleGangWar
         [DllImport("kernel32", CharSet = CharSet.Unicode)]
         private static extern int GetPrivateProfileString(string section, string key, string defaultValue, StringBuilder retVal, int size, string filePath);
 
-        public IniFile(string iniPath)
-        {
+        public IniFile(string iniPath) {
             _path = new FileInfo(iniPath).FullName;
         }
 
-        public string GetValue(string section, string key, string defaultValue)
+        public T GetValue<T>(string section, string key, T defaultValue)
         {
-            var retVal = new StringBuilder(255);
-            GetPrivateProfileString(section, key, defaultValue, retVal, 255, _path);
-            return retVal.ToString();
+            var readRaw = new StringBuilder(255);
+            GetPrivateProfileString(section, key, "", readRaw, 255, _path);
+            string readString = readRaw.ToString();
+            if (readString.Length == 0) {
+                return defaultValue;
+            }
+
+            var converter = TypeDescriptor.GetConverter(typeof(T));
+            return (T) converter.ConvertFromInvariantString(readString);
         }
     }
 }

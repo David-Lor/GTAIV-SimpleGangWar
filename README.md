@@ -28,6 +28,14 @@ An additional hotkey `F8` ("SpawnHotkey") is used to pause/resume the ped spawni
 
 Settings can be defined on the `SimpleGangWar.ini` file, being the following:
 
+### ALLIED_TEAM & ENEMY_TEAM
+
+_All lists of items (models & weapons) are separated by comma (`,`) or semi-colon (`;`). Spaces and case ignored._
+
+- `Health`: health for peds (should not be less than 100; if -1, not changed)
+- `Armor`: armor for peds (from 0; if -1, not changed)
+- `Accuracy`: accuracy for peds (from 0; if -1, not changed)
+
 ### SETTINGS
 
 - `Hotkey`: the single hotkey used to iterate over the script stages ([Reference](https://docs.microsoft.com/en-us/dotnet/api/system.windows.input.key?view=netcore-3.1#fields))

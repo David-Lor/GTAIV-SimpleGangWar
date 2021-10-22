@@ -14,12 +14,12 @@ namespace SimpleGangWar
         // Settings defined on script variables serve as fallback for settings not defined (or invalid) on .ini config file
 
         // https://gtamods.com/wiki/List_of_models_hashes
-        // https://gtamods.com/wiki/List_of_Weapons_(GTA4)
+        // Weapons: see docs/Weapons.md
 
         private static Model[] pedsAllies = {"M_O_GRUS_HI_01", "M_Y_GRUS_LO_01", "M_Y_GRUS_LO_02", "M_Y_GRUS_HI_02", "M_M_GRU2_HI_01", "M_M_GRU2_HI_02", "M_M_GRU2_LO_02", "M_Y_GRU2_LO_01"};
-        private static Weapon[] weaponsAllies = {Weapon.Rifle_AK47, Weapon.Handgun_DesertEagle, Weapon.Handgun_Glock, Weapon.SMG_Uzi};
+        private static string[] weaponsAllies = {"HANDGUN_GLOCK", "HANDGUN_DESERTEAGLE", "RIFLE_AK47", "SMG_UZI"};
         private static Model[] pedsEnemies = {"M_M_GJAM_HI_01", "M_M_GJAM_HI_02", "M_M_GJAM_HI_03", "M_Y_GJAM_LO_01", "M_Y_GJAM_LO_02"};
-        private static Weapon[] weaponsEnemies = {Weapon.Rifle_AK47, Weapon.Rifle_M4, Weapon.Handgun_Glock, Weapon.Handgun_DesertEagle, Weapon.SMG_MP5};
+        private static string[] weaponsEnemies = {"HANDGUN_GLOCK", "RIFLE_M4", "SMG_MP5"};
 
         private static readonly char[] StringSeparators = {',', ';'};
 
@@ -117,6 +117,11 @@ namespace SimpleGangWar
             hotkey = EnumParse(configString, hotkey);
             configString = config.GetValue(SettingsHeader.General, "SpawnHotkey", "");
             spawnHotkey = EnumParse(configString, spawnHotkey);
+
+            configString = config.GetValue(SettingsHeader.Allies, "Weapons", "");
+            weaponsAllies = ArrayParse(configString, weaponsAllies);
+            configString = config.GetValue(SettingsHeader.Enemies, "Weapons", "");
+            weaponsEnemies = ArrayParse(configString, weaponsEnemies);
 
             healthAllies = config.GetValue(SettingsHeader.Allies, "Health", healthAllies);
             healthEnemies = config.GetValue(SettingsHeader.Enemies, "Health", healthEnemies);
@@ -320,10 +325,16 @@ namespace SimpleGangWar
         {
             Vector3 pedPosition = alliedTeam ? spawnpointAllies : spawnpointEnemies;
             Model pedModel = RandomChoice(alliedTeam ? pedsAllies : pedsEnemies);
-            Weapon pedWeapon = RandomChoice(alliedTeam ? weaponsAllies : weaponsEnemies);
+            string weaponName = RandomChoice(alliedTeam ? weaponsAllies : weaponsEnemies);
+            Weapon weaponGive;
+            
+            // TODO Verify names from arrays on script startup
+            if (!Enum.TryParse(weaponName, true, out weaponGive)) {
+                throw new FormatException("Weapon name " + weaponName + " does not exist!");
+            }
 
             Ped ped = World.CreatePed(pedModel, pedPosition);
-            ped.Weapons.Select(pedWeapon);
+            ped.Weapons.Select(weaponGive);
             ped.Weapons.Current.Ammo = Int32.MaxValue;
 
             int health = ped.MaxHealth = alliedTeam ? healthAllies : healthEnemies;
@@ -563,13 +574,13 @@ namespace SimpleGangWar
         /// <param name="stringInput">Input string</param>
         /// <param name="defaultArray">Array to return if the input string contains no items</param>
         /// <returns>A string array</returns>
-        /*private string[] ArrayParse(string stringInput, string[] defaultArray)
+        private string[] ArrayParse(string stringInput, string[] defaultArray)
         {
             string[] resultArray = stringInput.Replace(" ", string.Empty)
                 .Split(StringSeparators, StringSplitOptions.RemoveEmptyEntries);
             if (resultArray.Length == 0) resultArray = defaultArray;
             return resultArray;
-        }*/
+        }
     }
     
     // Source: https://stackoverflow.com/a/14906422

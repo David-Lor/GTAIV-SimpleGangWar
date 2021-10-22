@@ -22,11 +22,16 @@ The key `F9` ("Hotkey") is used to navigate through all the steps of the script.
 4. Press the hotkey once to enter the "exit mode" (it will ask for confirmation to stop the battle)
 5. Pressing the hotkey again will inmediately stop the battle and remove all alive & dead peds from the map
 
-An additional hotkey `Z` ("SpawnHotkey") is used to pause/resume the ped spawning in both teams.
+An additional hotkey `F8` ("SpawnHotkey") is used to pause/resume the ped spawning in both teams.
 
 ## Settings
 
-At this moment, no .ini config file is supported. Configuration must be changed directly on the script. The settings will be documented here when the config file support is included.
+Settings can be defined on the `SimpleGangWar.ini` file, being the following:
+
+### SETTINGS
+
+- `Hotkey`: the single hotkey used to iterate over the script stages ([Reference](https://docs.microsoft.com/en-us/dotnet/api/system.windows.input.key?view=netcore-3.1#fields))
+- `SpawnHotkey`: hotkey used to pause/resume ped spawn in both teams ([Reference](https://docs.microsoft.com/en-us/dotnet/api/system.windows.input.key?view=netcore-3.1#fields))
 
 ## Known bugs
 

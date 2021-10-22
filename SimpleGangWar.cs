@@ -2,6 +2,9 @@
 using System;
 using System.Windows.Forms;
 using System.Collections.Generic;
+using System.IO;
+using System.Runtime.InteropServices;
+using System.Text;
 
 namespace SimpleGangWar
 {
@@ -27,8 +30,8 @@ namespace SimpleGangWar
         private static int accuracyEnemies = 5;
 
         private static int maxPedsPerTeam = 10;
-        private static Keys hotkey = Keys.B;
-        private static Keys spawnHotkey = Keys.N;
+        private static Keys hotkey = Keys.F9;
+        private static Keys spawnHotkey = Keys.F8;
         private static bool noWantedLevel = true;
         private static bool showBlipsOnPeds = true;
         private static bool dropWeaponOnDead = false;
@@ -45,6 +48,12 @@ namespace SimpleGangWar
         private static int maxSpawnPedsAllies = 5;
         private static int maxSpawnPedsEnemies = 5;
 
+        // Settings that can be changed, but not supported on config file
+
+        private static BlipColor allyBlipColor = BlipColor.Cyan;
+        private static BlipColor enemyBlipColor = BlipColor.Orange;
+        private static BlipColor disabledBlipColor = BlipColor.Grey;
+        
         // From here, internal script variables - do not change!
 
         private RelationshipGroup relationshipGroupEnemies = RelationshipGroup.NetworkPlayer_32;
@@ -71,8 +80,7 @@ namespace SimpleGangWar
         private Blip spawnpointBlipAllies;
         private Blip spawnpointBlipEnemies;
 
-        private static Relationship[] allyRelationships =
-            {Relationship.Companion, Relationship.Like, Relationship.Respect};
+        private static Relationship[] allyRelationships = {Relationship.Companion, Relationship.Like, Relationship.Respect};
 
         private static Relationship[] enemyRelationships = {Relationship.Hate, Relationship.Dislike};
 
@@ -101,6 +109,13 @@ namespace SimpleGangWar
             Tick += MainLoop;
             KeyUp += OnKeyUp;
             Interval = idleInterval;
+
+            IniFile config = new IniFile("scripts\\SimpleGangWar.ini");
+
+            string configString = config.GetValue(SettingsHeader.General, "Hotkey", "");
+            hotkey = EnumParse(configString, hotkey);
+            configString = config.GetValue(SettingsHeader.General, "SpawnHotkey", "");
+            spawnHotkey = EnumParse(configString, spawnHotkey);
 
             /*ScriptSettings config = ScriptSettings.Load("scripts\\SimpleGangWar.ini");
             string configString;
@@ -133,11 +148,6 @@ namespace SimpleGangWar
             pedsAllies = ArrayParse(configString, pedsAllies);
             configString = config.GetValue<string>(SettingsHeader.Enemies, "Models", "");
             pedsEnemies = ArrayParse(configString, pedsEnemies);
-
-            configString = config.GetValue<string>(SettingsHeader.General, "Hotkey", "");
-            hotkey = EnumParse(configString, hotkey);
-            configString = config.GetValue<string>(SettingsHeader.General, "SpawnHotkey", "");
-            spawnHotkey = EnumParse(configString, spawnHotkey);
 
             maxPedsPerTeam = config.GetValue(SettingsHeader.General, "MaxPedsPerTeam", maxPedsPerTeam);
             noWantedLevel = config.GetValue(SettingsHeader.General, "NoWantedLevel", noWantedLevel);
@@ -404,7 +414,7 @@ namespace SimpleGangWar
                 spawnpointAllies = position;
                 spawnpointBlipAllies = blip;
                 blip.Icon = BlipIcon.Building_Garage;
-                blip.Color = BlipColor.Cyan;
+                blip.Color = allyBlipColor;
                 blip.Display = BlipDisplay.ArrowAndMap;
                 blip.Name = "Ally spawnpoint";
             }
@@ -413,7 +423,7 @@ namespace SimpleGangWar
                 spawnpointEnemies = position;
                 spawnpointBlipEnemies = blip;
                 blip.Icon = BlipIcon.Activity_Darts;
-                blip.Color = BlipColor.Orange;
+                blip.Color = enemyBlipColor;
                 blip.Display = BlipDisplay.ArrowAndMap;
                 blip.Name = "Enemy spawnpoint";
             }
@@ -423,6 +433,8 @@ namespace SimpleGangWar
 
         /// <summary>
         /// Blink or stop blinking the spawnpoint blip of the given team, depending on if the spawn is disabled (blink) or not (stop blinking).
+        /// The current effect is changing the color of the blips (greyed out would be blinking; original color would be static).
+        /// The method name was kept for having the same language as other SimpleGangWar scripts.
         /// </summary>
         /// <param name="alliedTeam">true=ally team / false=enemy team</param>
         private void BlinkSpawnpoint(bool alliedTeam)
@@ -430,14 +442,14 @@ namespace SimpleGangWar
             Blip blip = alliedTeam ? spawnpointBlipAllies : spawnpointBlipEnemies;
             if (blip == null) return;
 
-            /*if (spawnEnabled)
+            if (spawnEnabled)
             {
-                blip.Transparency = 0.5f;
+                blip.Color = alliedTeam ? allyBlipColor : enemyBlipColor;
             }
             else
             {
-                blip.Transparency = 1.0f;
-            }*/
+                blip.Color = disabledBlipColor;
+            }
         }
 
         /// <summary>
@@ -529,12 +541,12 @@ namespace SimpleGangWar
         /// <param name="enumKey">The enum key as string</param>
         /// <param name="defaultValue">What enum option to return if the referenced enum key does not exist in the enum</param>
         /// <returns>The chosen enum option</returns>
-        /*private EnumType EnumParse<EnumType>(string enumKey, EnumType defaultValue) where EnumType : struct
+        private EnumType EnumParse<EnumType>(string enumKey, EnumType defaultValue) where EnumType : struct
         {
             EnumType returnValue;
             if (!Enum.TryParse(enumKey, true, out returnValue)) returnValue = defaultValue;
             return returnValue;
-        }*/
+        }
 
         /// <summary>
         /// Given a string of words to be split, split them and return a string array.
@@ -549,5 +561,26 @@ namespace SimpleGangWar
             if (resultArray.Length == 0) resultArray = defaultArray;
             return resultArray;
         }*/
+    }
+    
+    // Source: https://stackoverflow.com/a/14906422
+    class IniFile
+    {
+        private readonly string _path;
+
+        [DllImport("kernel32", CharSet = CharSet.Unicode)]
+        private static extern int GetPrivateProfileString(string section, string key, string defaultValue, StringBuilder retVal, int size, string filePath);
+
+        public IniFile(string iniPath)
+        {
+            _path = new FileInfo(iniPath).FullName;
+        }
+
+        public string GetValue(string section, string key, string defaultValue)
+        {
+            var retVal = new StringBuilder(255);
+            GetPrivateProfileString(section, key, defaultValue, retVal, 255, _path);
+            return retVal.ToString();
+        }
     }
 }

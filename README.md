@@ -8,9 +8,9 @@ This is a port of [GTA V SimpleGangWar script](https://github.com/David-Lor/GTAV
 
 ## Installing
 
-**Prerrequisites**: ScriptHookDotNet and its requirements. I recommend downloading [LSPD:FR](https://www.lcpdfr.com/downloads/gta4mods/g17media/4607-lcpd-first-response-legacy-edition/), which bundles all the requirements. Tested on GTA IV version 1.2.0.43 (Steam+Rockstar version) on October 2021.
+**Prerrequisites**: GTA IV ScriptHookDotNet and its requirements. I recommend downloading [LCPD:FR](https://www.lcpdfr.com/downloads/gta4mods/g17media/4607-lcpd-first-response-legacy-edition/), which bundles all of the requirements. Tested on GTA IV version 1.2.0.43 (Steam+Rockstar version) in October 2021.
 
-**Installing**: put SimpleGangWar.cs and SimpleGangWar.ini into the `Grand Theft Auto IV/scripts` folder
+**Installing**: download the latest version (zip file) from [Releases](https://github.com/David-Lor/GTAIV-SimpleGangWar/releases). Extract and put SimpleGangWar.cs and SimpleGangWar.ini into the `Grand Theft Auto IV/scripts` folder
 
 ## Usage
 
@@ -58,6 +58,10 @@ _All lists of items (models & weapons) are separated by comma (`,`) or semi-colo
 
 - First spawned peds may stand still and not fight. A possible workaround is to bump into them, or kill them.
 - RunToSpawnpoint=true is not working fine; peds usually keep stuttering forever, or slow-walk into the enemies.
+- Peds may not fight if spawnpoints are too far.
+- Usage during missions may cause different problems:
+  - Allies may not follow the player
+  - Mission and SimpleGangWar enemies may fight each other (this may be fixed when implementing the ProcessOtherRelationshipGroups feature)
 
 ## TODO
 

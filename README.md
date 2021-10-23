@@ -44,10 +44,12 @@ _All lists of items (models & weapons) are separated by comma (`,`) or semi-colo
 - `Hotkey`: the single hotkey used to iterate over the script stages ([Reference](https://docs.microsoft.com/en-us/dotnet/api/system.windows.input.key?view=netcore-3.1#fields))
 - `SpawnHotkey`: hotkey used to pause/resume ped spawn in both teams ([Reference](https://docs.microsoft.com/en-us/dotnet/api/system.windows.input.key?view=netcore-3.1#fields))
 - `MaxPedsPerTeam`: maximum alive peds on each team - teams with the setting MaxPeds will ignore this option (greater/equal to 0)
+- `RunToSpawnpoint`: if true, the peds task will be to run to their enemies' spawnpoint; if false, will be to fight hated targets on the area (true/false) (currently not working, fine, recommended to leave on false or remove).
 
 ## Known bugs
 
 - First spawned peds may stand still and not fight. A possible workaround is to bump into them, or kill them.
+- RunToSpawnpoint=true is not working fine; peds usually keep stuttering forever, or slow-walk into the enemies.
 
 ## TODO
 

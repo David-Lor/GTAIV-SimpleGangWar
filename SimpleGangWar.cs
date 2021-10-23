@@ -141,6 +141,8 @@ namespace SimpleGangWar
             maxPedsAllies = config.GetValue(SettingsHeader.Allies, "MaxPeds", maxPedsPerTeam);
             maxPedsEnemies = config.GetValue(SettingsHeader.Enemies, "MaxPeds", maxPedsPerTeam);
 
+            runToSpawnpoint = config.GetValue(SettingsHeader.General, "RunToSpawnpoint", runToSpawnpoint);
+
             /*
             configString = config.GetValue<string>(SettingsHeader.Allies, "CombatMovement", "");
             combatMovementAllies = EnumParse(configString, combatMovementAllies);
@@ -166,7 +168,6 @@ namespace SimpleGangWar
             showBlipsOnPeds = config.GetValue(SettingsHeader.General, "ShowBlipsOnPeds", showBlipsOnPeds);
             dropWeaponOnDead = config.GetValue(SettingsHeader.General, "DropWeaponOnDead", dropWeaponOnDead);
             removeDeadPeds = config.GetValue(SettingsHeader.General, "RemoveDeadPeds", removeDeadPeds);
-            runToSpawnpoint = config.GetValue(SettingsHeader.General, "RunToSpawnpoint", runToSpawnpoint);
             processOtherRelationshipGroups = config.GetValue(SettingsHeader.General, "ProcessOtherRelationshipGroups",
                 processOtherRelationshipGroups);
             neutralPlayer = config.GetValue(SettingsHeader.General, "NeutralPlayer", neutralPlayer);
@@ -411,7 +412,7 @@ namespace SimpleGangWar
                     deadPeds.Add(ped);
                     if (removeDeadPeds) ped.NoLongerNeeded();
                 }
-                // TODO this check can make peds stutter forever:
+                // TODO this check can make peds stutter forever if runToSpawnpoint=true:
                 else if (ped.isIdle)
                 {
                     if (runToSpawnpoint) ped.Task.RunTo(alliedTeam ? spawnpointEnemies : spawnpointAllies);

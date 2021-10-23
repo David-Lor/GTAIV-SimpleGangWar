@@ -5,6 +5,11 @@ on:
   repository_dispatch:
     types:
       - "from_tag"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version (tag) to release"
+        required: true
 
 name: Create Release
 
@@ -31,6 +36,9 @@ jobs:
       - name: Extract version (on repository dispatch) to file
         if: "${{ github.event_name == 'repository_dispatch' }}"
         run: "echo ${{ github.event.client_payload.tag }} > extracted_tag.txt"
+      - name: Extract version (on workflow dispatch) to file
+        if: "${{ github.event_name == 'workflow_dispatch' }}"
+        run: "echo ${{ github.event.inputs.version }} > extracted_tag.txt"
       - name: Read extracted tag from file
         id: get_version_from_file
         uses: juliangruber/read-file-action@v1

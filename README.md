@@ -22,15 +22,42 @@ The key `F9` ("Hotkey") is used to navigate through all the steps of the script.
 4. Press the hotkey once to enter the "exit mode" (it will ask for confirmation to stop the battle)
 5. Pressing the hotkey again will inmediately stop the battle and remove all alive & dead peds from the map
 
-An additional hotkey `Z` ("SpawnHotkey") is used to pause/resume the ped spawning in both teams.
+An additional hotkey `F8` ("SpawnHotkey") is used to pause/resume the ped spawning in both teams.
 
 ## Settings
 
-At this moment, no .ini config file is supported. Configuration must be changed directly on the script. The settings will be documented here when the config file support is included.
+Settings can be defined on the `SimpleGangWar.ini` file, being the following:
+
+### ALLIED_TEAM & ENEMY_TEAM
+
+_All lists of items (models & weapons) are separated by comma (`,`) or semi-colon (`;`). Spaces and case ignored. **If any item name does not exist, SimpleGangWar will crash!**_
+
+- `Models`: list of ped models ([Reference](docs/PedModels.md))
+- `Weapons`: list of ped weapons ([Reference](docs/Weapons.md))
+- `Health`: health for peds (should not be less than 100; if -1, not changed)
+- `Armor`: armor for peds (greater/equal to 0; if -1, not changed)
+- `Accuracy`: accuracy for peds (greater/equal to 0; if -1, not changed)
+- `MaxPeds`: maximum alive peds on the team at the same time (if not specified, the MaxPedsPerTeam setting will be used) (greater/equal to 0)
+- `MaxSpawnPeds`: limit of peds that will spawn on the team. When the limit is reached, no more peds on the team will spawn on the current battle for that team (greater/equal to 0; if -1, not set)
+
+### SETTINGS
+
+- `Hotkey`: the single hotkey used to iterate over the script stages ([Reference](https://docs.microsoft.com/en-us/dotnet/api/system.windows.input.key?view=netcore-3.1#fields))
+- `SpawnHotkey`: hotkey used to pause/resume ped spawn in both teams ([Reference](https://docs.microsoft.com/en-us/dotnet/api/system.windows.input.key?view=netcore-3.1#fields))
+- `MaxPedsPerTeam`: maximum alive peds on each team - teams with the setting MaxPeds will ignore this option (greater/equal to 0)
+- `SpawnpointFloodLimitPeds`: limit how many peds can be near its spawnpoint. If more than this quantity of peds are near the spawnpoint, no more peds on the team will spawn (greater than 0; if 0, not set)
+- `SpawnpointFloodLimitDistance`: in-game distance from a team spawnpoint to keep track of the SpawnpointFloodLimitPeds. Can be integer or decimal (if using decimals, use dot or comma depending on your system regional settings)
+- `ShowBlipsOnPeds`: if true, each spawned ped will have a blip on the map (true/false)
+- `RemoveDeadPeds`: if true, mark dead peds as no longer needed, making the game handle their cleanup; recommended to keep it enabled for long fights, as many persistent bodies may crash the game (true/false)
+- `RunToSpawnpoint`: if true, the peds task will be to run to their enemies' spawnpoint; if false, will be to fight hated targets on the area (true/false) (currently not working, fine, recommended to leave on false or remove).
+- Intervals: delay between loop runs. Lower values will have more precise results but also use more system resources. Default values are recommended. Two values are available, depending on the battle stage:
+  - `IdleInterval`: when battle is not running
+  - `BattleInterval`: when battle is running
 
 ## Known bugs
 
 - First spawned peds may stand still and not fight. A possible workaround is to bump into them, or kill them.
+- RunToSpawnpoint=true is not working fine; peds usually keep stuttering forever, or slow-walk into the enemies.
 - Peds may not fight if spawnpoints are too far.
 - Usage during missions may cause different problems:
   - Allies may not follow the player
@@ -44,5 +71,7 @@ At this moment, no .ini config file is supported. Configuration must be changed 
 
 ## Changelog
 
+- 0.1.1
+  - Support for .ini config file, and multiple configurations from SimpleGangWar integrated
 - 0.0.1
   - Initial ported functional release; missing some features and support for config file

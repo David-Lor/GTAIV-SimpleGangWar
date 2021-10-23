@@ -63,12 +63,6 @@ _All lists of items (models & weapons) are separated by comma (`,`) or semi-colo
   - Allies may not follow the player
   - Mission and SimpleGangWar enemies may fight each other (this may be fixed when implementing the ProcessOtherRelationshipGroups feature)
 
-## TODO
-
-- Support .ini config file
-- Make spawnpoint blips blink (or change in any other way) when spawning is paused.
-- Implement other missing configuration features...
-
 ## Changelog
 
 - 0.1.1

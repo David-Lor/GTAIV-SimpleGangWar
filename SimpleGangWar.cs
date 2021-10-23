@@ -33,7 +33,6 @@ namespace SimpleGangWar
         private static int maxPedsPerTeam = 10;
         private static Keys hotkey = Keys.F9;
         private static Keys spawnHotkey = Keys.F8;
-        private static bool noWantedLevel = true;
         private static bool showBlipsOnPeds = true;
         private static bool dropWeaponOnDead = false;
         private static bool removeDeadPeds = true;
@@ -85,7 +84,6 @@ namespace SimpleGangWar
 
         private static Relationship[] enemyRelationships = {Relationship.Hate, Relationship.Dislike};
 
-        private int relationshipGroupPlayer;
         private static Random random;
 
         private enum Stage
@@ -155,24 +153,6 @@ namespace SimpleGangWar
             idleInterval = config.GetValue(SettingsHeader.General, "IdleInterval", idleInterval);
             battleInterval = config.GetValue(SettingsHeader.General, "BattleInterval", battleInterval);
 
-            /*
-            configString = config.GetValue<string>(SettingsHeader.Allies, "CombatMovement", "");
-            combatMovementAllies = EnumParse(configString, combatMovementAllies);
-            configString = config.GetValue<string>(SettingsHeader.Enemies, "CombatMovement", "");
-            combatMovementEnemies = EnumParse(configString, combatMovementEnemies);
-
-            configString = config.GetValue<string>(SettingsHeader.Allies, "CombatRange", "");
-            combatRangeAllies = EnumParse(configString, combatRangeAllies);
-            configString = config.GetValue<string>(SettingsHeader.Enemies, "CombatRange", "");
-            combatRangeEnemies = EnumParse(configString, combatRangeEnemies);
-
-            noWantedLevel = config.GetValue(SettingsHeader.General, "NoWantedLevel", noWantedLevel);
-            dropWeaponOnDead = config.GetValue(SettingsHeader.General, "DropWeaponOnDead", dropWeaponOnDead);
-            processOtherRelationshipGroups = config.GetValue(SettingsHeader.General, "ProcessOtherRelationshipGroups",
-                processOtherRelationshipGroups);
-            neutralPlayer = config.GetValue(SettingsHeader.General, "NeutralPlayer", neutralPlayer);
-            */
-
             World.SetGroupRelationship(RelationshipGroup.Player, Relationship.Respect, RelationshipGroup.Player);
             World.SetGroupRelationship(RelationshipGroup.Player, Relationship.Hate, relationshipGroupEnemies);
 
@@ -195,7 +175,6 @@ namespace SimpleGangWar
                     SpawnPeds(true);
                     SpawnPeds(false);
 
-                    SetUnmanagedPedsInRelationshipGroups();
                     ProcessSpawnedPeds(true);
                     ProcessSpawnedPeds(false);
                 }
@@ -467,45 +446,6 @@ namespace SimpleGangWar
             {
                 blip.Color = disabledBlipColor;
             }
-        }
-
-        /// <summary>
-        /// Get all the relationship groups from foreign peds (those that are not part of SimpleGangWar), and set the relationship between these groups and the SimpleGangWar groups.
-        /// </summary>
-        private void SetUnmanagedPedsInRelationshipGroups()
-        {
-            // TODO
-            /*if (processOtherRelationshipGroups)
-            {
-                foreach (Ped ped in World.GetAllPeds())
-                {
-                    if (ped.IsHuman && !ped.IsPlayer)
-                    {
-                        Relationship pedRelationshipWithPlayer = ped.GetRelationshipWithPed(Game.Player.Character);
-                        int relationshipGroup = ped.RelationshipGroup;
-
-                        if (relationshipGroup != relationshipGroupAllies &&
-                            relationshipGroup != relationshipGroupEnemies &&
-                            relationshipGroup != relationshipGroupPlayer)
-                        {
-                            if (allyRelationships.Contains(pedRelationshipWithPlayer))
-                            {
-                                SetRelationshipBetweenGroups(Relationship.Respect, relationshipGroup,
-                                    relationshipGroupAllies);
-                                SetRelationshipBetweenGroups(Relationship.Hate, relationshipGroup,
-                                    relationshipGroupEnemies);
-                            }
-                            else if (enemyRelationships.Contains(pedRelationshipWithPlayer))
-                            {
-                                SetRelationshipBetweenGroups(Relationship.Respect, relationshipGroup,
-                                    relationshipGroupEnemies);
-                                SetRelationshipBetweenGroups(Relationship.Hate, relationshipGroup,
-                                    relationshipGroupAllies);
-                            }
-                        }
-                    }
-                }
-            }*/
         }
 
         /// <summary>

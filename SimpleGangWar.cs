@@ -137,6 +137,10 @@ namespace SimpleGangWar
             accuracyAllies = config.GetValue(SettingsHeader.Allies, "Accuracy", accuracyAllies);
             accuracyEnemies = config.GetValue(SettingsHeader.Enemies, "Accuracy", accuracyEnemies);
 
+            maxPedsPerTeam = config.GetValue(SettingsHeader.General, "MaxPedsPerTeam", maxPedsPerTeam);
+            maxPedsAllies = config.GetValue(SettingsHeader.Allies, "MaxPeds", maxPedsPerTeam);
+            maxPedsEnemies = config.GetValue(SettingsHeader.Enemies, "MaxPeds", maxPedsPerTeam);
+
             /*
             configString = config.GetValue<string>(SettingsHeader.Allies, "CombatMovement", "");
             combatMovementAllies = EnumParse(configString, combatMovementAllies);
@@ -158,7 +162,6 @@ namespace SimpleGangWar
             configString = config.GetValue<string>(SettingsHeader.Enemies, "Models", "");
             pedsEnemies = ArrayParse(configString, pedsEnemies);
 
-            maxPedsPerTeam = config.GetValue(SettingsHeader.General, "MaxPedsPerTeam", maxPedsPerTeam);
             noWantedLevel = config.GetValue(SettingsHeader.General, "NoWantedLevel", noWantedLevel);
             showBlipsOnPeds = config.GetValue(SettingsHeader.General, "ShowBlipsOnPeds", showBlipsOnPeds);
             dropWeaponOnDead = config.GetValue(SettingsHeader.General, "DropWeaponOnDead", dropWeaponOnDead);
@@ -174,8 +177,6 @@ namespace SimpleGangWar
             idleInterval = config.GetValue(SettingsHeader.General, "IdleInterval", idleInterval);
             battleInterval = config.GetValue(SettingsHeader.General, "BattleInterval", battleInterval);
 
-            maxPedsAllies = config.GetValue(SettingsHeader.Allies, "MaxPeds", maxPedsPerTeam);
-            maxPedsEnemies = config.GetValue(SettingsHeader.Enemies, "MaxPeds", maxPedsPerTeam);
             maxSpawnPedsAllies = config.GetValue(SettingsHeader.Allies, "MaxSpawnPeds", maxSpawnPedsAllies);
             maxSpawnPedsEnemies = config.GetValue(SettingsHeader.Enemies, "MaxSpawnPeds", maxSpawnPedsEnemies);
             */

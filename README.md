@@ -35,13 +35,15 @@ _All lists of items (models & weapons) are separated by comma (`,`) or semi-colo
 - `Models`: list of ped models ([Reference](docs/PedModels.md))
 - `Weapons`: list of ped weapons ([Reference](docs/Weapons.md))
 - `Health`: health for peds (should not be less than 100; if -1, not changed)
-- `Armor`: armor for peds (from 0; if -1, not changed)
-- `Accuracy`: accuracy for peds (from 0; if -1, not changed)
+- `Armor`: armor for peds (greater/equal to 0; if -1, not changed)
+- `Accuracy`: accuracy for peds (greater/equal to 0; if -1, not changed)
+- `MaxPeds`: maximum alive peds on the team at the same time (if not specified, the MaxPedsPerTeam setting will be used) (greater/equal to 0)
 
 ### SETTINGS
 
 - `Hotkey`: the single hotkey used to iterate over the script stages ([Reference](https://docs.microsoft.com/en-us/dotnet/api/system.windows.input.key?view=netcore-3.1#fields))
 - `SpawnHotkey`: hotkey used to pause/resume ped spawn in both teams ([Reference](https://docs.microsoft.com/en-us/dotnet/api/system.windows.input.key?view=netcore-3.1#fields))
+- `MaxPedsPerTeam`: maximum alive peds on each team - teams with the setting MaxPeds will ignore this option (greater/equal to 0)
 
 ## Known bugs
 

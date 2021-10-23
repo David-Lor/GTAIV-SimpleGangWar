@@ -2,6 +2,10 @@
 using System;
 using System.Windows.Forms;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.IO;
+using System.Runtime.InteropServices;
+using System.Text;
 
 namespace SimpleGangWar
 {
@@ -9,13 +13,13 @@ namespace SimpleGangWar
     {
         // Settings defined on script variables serve as fallback for settings not defined (or invalid) on .ini config file
 
-        // https://gtamods.com/wiki/List_of_models_hashes
-        // https://gtamods.com/wiki/List_of_Weapons_(GTA4)
+        // Models: see docs/PedModels.md | https://gtamods.com/wiki/List_of_models_hashes
+        // Weapons: see docs/Weapons.md
 
-        private static Model[] pedsAllies = {"M_O_GRUS_HI_01", "M_Y_GRUS_LO_01", "M_Y_GRUS_LO_02", "M_Y_GRUS_HI_02", "M_M_GRU2_HI_01", "M_M_GRU2_HI_02", "M_M_GRU2_LO_02", "M_Y_GRU2_LO_01"};
-        private static Weapon[] weaponsAllies = {Weapon.Rifle_AK47, Weapon.Handgun_DesertEagle, Weapon.Handgun_Glock, Weapon.SMG_Uzi};
-        private static Model[] pedsEnemies = {"M_M_GJAM_HI_01", "M_M_GJAM_HI_02", "M_M_GJAM_HI_03", "M_Y_GJAM_LO_01", "M_Y_GJAM_LO_02"};
-        private static Weapon[] weaponsEnemies = {Weapon.Rifle_AK47, Weapon.Rifle_M4, Weapon.Handgun_Glock, Weapon.Handgun_DesertEagle, Weapon.SMG_MP5};
+        private static string[] pedsAllies = {"M_O_GRUS_HI_01", "M_Y_GRUS_LO_01", "M_Y_GRUS_LO_02", "M_Y_GRUS_HI_02", "M_M_GRU2_HI_01", "M_M_GRU2_HI_02", "M_M_GRU2_LO_02", "M_Y_GRU2_LO_01"};
+        private static string[] weaponsAllies = {"HANDGUN_GLOCK", "HANDGUN_DESERTEAGLE", "RIFLE_AK47", "SMG_UZI"};
+        private static string[] pedsEnemies = {"M_M_GJAM_HI_01", "M_M_GJAM_HI_02", "M_M_GJAM_HI_03", "M_Y_GJAM_LO_01", "M_Y_GJAM_LO_02"};
+        private static string[] weaponsEnemies = {"HANDGUN_GLOCK", "RIFLE_M4", "SMG_MP5"};
 
         private static readonly char[] StringSeparators = {',', ';'};
 
@@ -27,24 +31,29 @@ namespace SimpleGangWar
         private static int accuracyEnemies = 5;
 
         private static int maxPedsPerTeam = 10;
-        private static Keys hotkey = Keys.B;
-        private static Keys spawnHotkey = Keys.N;
-        private static bool noWantedLevel = true;
+        private static Keys hotkey = Keys.F9;
+        private static Keys spawnHotkey = Keys.F8;
         private static bool showBlipsOnPeds = true;
         private static bool dropWeaponOnDead = false;
         private static bool removeDeadPeds = true;
         private static bool runToSpawnpoint = false;
         private static bool processOtherRelationshipGroups = false;
         private static bool neutralPlayer = false;
-        private static int spawnpointFloodLimitPeds = -1;
+        private static int spawnpointFloodLimitPeds = 10;
         private static float spawnpointFloodLimitDistance = 8.0f;
         private static int idleInterval = 500;
         private static int battleInterval = 100;
         private static int maxPedsAllies = 10;
         private static int maxPedsEnemies = 10;
-        private static int maxSpawnPedsAllies = 5;
-        private static int maxSpawnPedsEnemies = 5;
+        private static int maxSpawnPedsAllies = -1;
+        private static int maxSpawnPedsEnemies = -1;
 
+        // Settings that can be changed, but not supported on config file
+
+        private static BlipColor allyBlipColor = BlipColor.Cyan;
+        private static BlipColor enemyBlipColor = BlipColor.Orange;
+        private static BlipColor disabledBlipColor = BlipColor.Grey;
+        
         // From here, internal script variables - do not change!
 
         private RelationshipGroup relationshipGroupEnemies = RelationshipGroup.NetworkPlayer_32;
@@ -71,12 +80,10 @@ namespace SimpleGangWar
         private Blip spawnpointBlipAllies;
         private Blip spawnpointBlipEnemies;
 
-        private static Relationship[] allyRelationships =
-            {Relationship.Companion, Relationship.Like, Relationship.Respect};
+        private static Relationship[] allyRelationships = {Relationship.Companion, Relationship.Like, Relationship.Respect};
 
         private static Relationship[] enemyRelationships = {Relationship.Hate, Relationship.Dislike};
 
-        private int relationshipGroupPlayer;
         private static Random random;
 
         private enum Stage
@@ -102,8 +109,22 @@ namespace SimpleGangWar
             KeyUp += OnKeyUp;
             Interval = idleInterval;
 
-            /*ScriptSettings config = ScriptSettings.Load("scripts\\SimpleGangWar.ini");
-            string configString;
+            IniFile config = new IniFile("scripts\\SimpleGangWar.ini");
+
+            string configString = config.GetValue(SettingsHeader.General, "Hotkey", "");
+            hotkey = EnumParse(configString, hotkey);
+            configString = config.GetValue(SettingsHeader.General, "SpawnHotkey", "");
+            spawnHotkey = EnumParse(configString, spawnHotkey);
+
+            configString = config.GetValue(SettingsHeader.Allies, "Models", "");
+            pedsAllies = ArrayParse(configString, pedsAllies);
+            configString = config.GetValue(SettingsHeader.Enemies, "Models", "");
+            pedsEnemies = ArrayParse(configString, pedsEnemies);
+
+            configString = config.GetValue(SettingsHeader.Allies, "Weapons", "");
+            weaponsAllies = ArrayParse(configString, weaponsAllies);
+            configString = config.GetValue(SettingsHeader.Enemies, "Weapons", "");
+            weaponsEnemies = ArrayParse(configString, weaponsEnemies);
 
             healthAllies = config.GetValue(SettingsHeader.Allies, "Health", healthAllies);
             healthEnemies = config.GetValue(SettingsHeader.Enemies, "Health", healthEnemies);
@@ -114,52 +135,23 @@ namespace SimpleGangWar
             accuracyAllies = config.GetValue(SettingsHeader.Allies, "Accuracy", accuracyAllies);
             accuracyEnemies = config.GetValue(SettingsHeader.Enemies, "Accuracy", accuracyEnemies);
 
-            configString = config.GetValue<string>(SettingsHeader.Allies, "CombatMovement", "");
-            combatMovementAllies = EnumParse(configString, combatMovementAllies);
-            configString = config.GetValue<string>(SettingsHeader.Enemies, "CombatMovement", "");
-            combatMovementEnemies = EnumParse(configString, combatMovementEnemies);
-
-            configString = config.GetValue<string>(SettingsHeader.Allies, "CombatRange", "");
-            combatRangeAllies = EnumParse(configString, combatRangeAllies);
-            configString = config.GetValue<string>(SettingsHeader.Enemies, "CombatRange", "");
-            combatRangeEnemies = EnumParse(configString, combatRangeEnemies);
-
-            configString = config.GetValue<string>(SettingsHeader.Allies, "Weapons", "");
-            weaponsAllies = ArrayParse(configString, weaponsAllies);
-            configString = config.GetValue<string>(SettingsHeader.Enemies, "Weapons", "");
-            weaponsEnemies = ArrayParse(configString, weaponsEnemies);
-
-            configString = config.GetValue<string>(SettingsHeader.Allies, "Models", "");
-            pedsAllies = ArrayParse(configString, pedsAllies);
-            configString = config.GetValue<string>(SettingsHeader.Enemies, "Models", "");
-            pedsEnemies = ArrayParse(configString, pedsEnemies);
-
-            configString = config.GetValue<string>(SettingsHeader.General, "Hotkey", "");
-            hotkey = EnumParse(configString, hotkey);
-            configString = config.GetValue<string>(SettingsHeader.General, "SpawnHotkey", "");
-            spawnHotkey = EnumParse(configString, spawnHotkey);
-
             maxPedsPerTeam = config.GetValue(SettingsHeader.General, "MaxPedsPerTeam", maxPedsPerTeam);
-            noWantedLevel = config.GetValue(SettingsHeader.General, "NoWantedLevel", noWantedLevel);
-            showBlipsOnPeds = config.GetValue(SettingsHeader.General, "ShowBlipsOnPeds", showBlipsOnPeds);
-            dropWeaponOnDead = config.GetValue(SettingsHeader.General, "DropWeaponOnDead", dropWeaponOnDead);
-            removeDeadPeds = config.GetValue(SettingsHeader.General, "RemoveDeadPeds", removeDeadPeds);
-            runToSpawnpoint = config.GetValue(SettingsHeader.General, "RunToSpawnpoint", runToSpawnpoint);
-            processOtherRelationshipGroups = config.GetValue(SettingsHeader.General, "ProcessOtherRelationshipGroups",
-                processOtherRelationshipGroups);
-            neutralPlayer = config.GetValue(SettingsHeader.General, "NeutralPlayer", neutralPlayer);
+            maxPedsAllies = config.GetValue(SettingsHeader.Allies, "MaxPeds", maxPedsPerTeam);
+            maxPedsEnemies = config.GetValue(SettingsHeader.Enemies, "MaxPeds", maxPedsPerTeam);
+
+            maxSpawnPedsAllies = config.GetValue(SettingsHeader.Allies, "MaxSpawnPeds", maxSpawnPedsAllies);
+            maxSpawnPedsEnemies = config.GetValue(SettingsHeader.Enemies, "MaxSpawnPeds", maxSpawnPedsEnemies);
+
             spawnpointFloodLimitPeds = config.GetValue(SettingsHeader.General, "SpawnpointFloodLimitPeds",
                 spawnpointFloodLimitPeds);
             spawnpointFloodLimitDistance = config.GetValue(SettingsHeader.General, "SpawnpointFloodLimitDistance",
                 spawnpointFloodLimitDistance);
+
+            removeDeadPeds = config.GetValue(SettingsHeader.General, "RemoveDeadPeds", removeDeadPeds);
+            showBlipsOnPeds = config.GetValue(SettingsHeader.General, "ShowBlipsOnPeds", showBlipsOnPeds);
+            runToSpawnpoint = config.GetValue(SettingsHeader.General, "RunToSpawnpoint", runToSpawnpoint);
             idleInterval = config.GetValue(SettingsHeader.General, "IdleInterval", idleInterval);
             battleInterval = config.GetValue(SettingsHeader.General, "BattleInterval", battleInterval);
-
-            maxPedsAllies = config.GetValue(SettingsHeader.Allies, "MaxPeds", maxPedsPerTeam);
-            maxPedsEnemies = config.GetValue(SettingsHeader.Enemies, "MaxPeds", maxPedsPerTeam);
-            maxSpawnPedsAllies = config.GetValue(SettingsHeader.Allies, "MaxSpawnPeds", maxSpawnPedsAllies);
-            maxSpawnPedsEnemies = config.GetValue(SettingsHeader.Enemies, "MaxSpawnPeds", maxSpawnPedsEnemies);
-            */
 
             World.SetGroupRelationship(RelationshipGroup.Player, Relationship.Respect, RelationshipGroup.Player);
             World.SetGroupRelationship(RelationshipGroup.Player, Relationship.Hate, relationshipGroupEnemies);
@@ -183,7 +175,6 @@ namespace SimpleGangWar
                     SpawnPeds(true);
                     SpawnPeds(false);
 
-                    SetUnmanagedPedsInRelationshipGroups();
                     ProcessSpawnedPeds(true);
                     ProcessSpawnedPeds(false);
                 }
@@ -280,9 +271,6 @@ namespace SimpleGangWar
 
             // by MaxPeds in the team
             if (spawnedPedsList.Count >= maxPeds) return false;
-            return true;
-
-            // TODO continue validations
 
             // by MaxSpawnPeds limit
             if (maxSpawnPeds >= 0 && totalSpawnedPeds > maxSpawnPeds) return false;
@@ -310,17 +298,35 @@ namespace SimpleGangWar
         private Ped SpawnRandomPed(bool alliedTeam)
         {
             Vector3 pedPosition = alliedTeam ? spawnpointAllies : spawnpointEnemies;
-            Model pedModel = RandomChoice(alliedTeam ? pedsAllies : pedsEnemies);
-            Weapon pedWeapon = RandomChoice(alliedTeam ? weaponsAllies : weaponsEnemies);
+            string pedName = RandomChoice(alliedTeam ? pedsAllies : pedsEnemies);
+            string weaponName = RandomChoice(alliedTeam ? weaponsAllies : weaponsEnemies);
+            Weapon weaponGive;
+
+            // TODO Verify names from arrays on script startup
+            // TODO Invalid ped models not warning as custom exception, but NullPointerException (seems that cannot assert pedModel == null)
+            Model pedModel = Model.FromString(pedName);
+            if (!Enum.TryParse(weaponName, true, out weaponGive)) {
+                throw new FormatException("Weapon name " + weaponName + " does not exist!");
+            }
 
             Ped ped = World.CreatePed(pedModel, pedPosition);
-            ped.Weapons.Select(pedWeapon);
+            ped.Weapons.Select(weaponGive);
             ped.Weapons.Current.Ammo = Int32.MaxValue;
 
-            ped.Health = ped.MaxHealth = alliedTeam ? healthAllies : healthEnemies;
-            ped.Armor = alliedTeam ? armorAllies : armorEnemies;
+            int health = ped.MaxHealth = alliedTeam ? healthAllies : healthEnemies;
+            int armor = alliedTeam ? armorAllies : armorEnemies;
+            int accuracy = ped.Accuracy = alliedTeam ? accuracyAllies : accuracyEnemies;
+            if (health >= 0) {
+                ped.Health = health;
+            }
+            if (armor >= 0) {
+                ped.Armor = armor;
+            }
+            if (accuracy >= 0) {
+                ped.Accuracy = accuracy;
+            }
+
             ped.Money = 0;
-            ped.Accuracy = alliedTeam ? accuracyAllies : accuracyEnemies;
             ped.RelationshipGroup = alliedTeam ? RelationshipGroup.Player : relationshipGroupEnemies;
 
             if (showBlipsOnPeds)
@@ -373,7 +379,7 @@ namespace SimpleGangWar
                     deadPeds.Add(ped);
                     if (removeDeadPeds) ped.NoLongerNeeded();
                 }
-                // TODO this check can make peds stutter forever:
+                // TODO this check can make peds stutter forever if runToSpawnpoint=true:
                 else if (ped.isIdle)
                 {
                     if (runToSpawnpoint) ped.Task.RunTo(alliedTeam ? spawnpointEnemies : spawnpointAllies);
@@ -404,7 +410,7 @@ namespace SimpleGangWar
                 spawnpointAllies = position;
                 spawnpointBlipAllies = blip;
                 blip.Icon = BlipIcon.Building_Garage;
-                blip.Color = BlipColor.Cyan;
+                blip.Color = allyBlipColor;
                 blip.Display = BlipDisplay.ArrowAndMap;
                 blip.Name = "Ally spawnpoint";
             }
@@ -413,7 +419,7 @@ namespace SimpleGangWar
                 spawnpointEnemies = position;
                 spawnpointBlipEnemies = blip;
                 blip.Icon = BlipIcon.Activity_Darts;
-                blip.Color = BlipColor.Orange;
+                blip.Color = enemyBlipColor;
                 blip.Display = BlipDisplay.ArrowAndMap;
                 blip.Name = "Enemy spawnpoint";
             }
@@ -423,6 +429,8 @@ namespace SimpleGangWar
 
         /// <summary>
         /// Blink or stop blinking the spawnpoint blip of the given team, depending on if the spawn is disabled (blink) or not (stop blinking).
+        /// The current effect is changing the color of the blips (greyed out would be blinking; original color would be static).
+        /// The method name was kept for having the same language as other SimpleGangWar scripts.
         /// </summary>
         /// <param name="alliedTeam">true=ally team / false=enemy team</param>
         private void BlinkSpawnpoint(bool alliedTeam)
@@ -430,53 +438,14 @@ namespace SimpleGangWar
             Blip blip = alliedTeam ? spawnpointBlipAllies : spawnpointBlipEnemies;
             if (blip == null) return;
 
-            /*if (spawnEnabled)
+            if (spawnEnabled)
             {
-                blip.Transparency = 0.5f;
+                blip.Color = alliedTeam ? allyBlipColor : enemyBlipColor;
             }
             else
             {
-                blip.Transparency = 1.0f;
-            }*/
-        }
-
-        /// <summary>
-        /// Get all the relationship groups from foreign peds (those that are not part of SimpleGangWar), and set the relationship between these groups and the SimpleGangWar groups.
-        /// </summary>
-        private void SetUnmanagedPedsInRelationshipGroups()
-        {
-            // TODO
-            /*if (processOtherRelationshipGroups)
-            {
-                foreach (Ped ped in World.GetAllPeds())
-                {
-                    if (ped.IsHuman && !ped.IsPlayer)
-                    {
-                        Relationship pedRelationshipWithPlayer = ped.GetRelationshipWithPed(Game.Player.Character);
-                        int relationshipGroup = ped.RelationshipGroup;
-
-                        if (relationshipGroup != relationshipGroupAllies &&
-                            relationshipGroup != relationshipGroupEnemies &&
-                            relationshipGroup != relationshipGroupPlayer)
-                        {
-                            if (allyRelationships.Contains(pedRelationshipWithPlayer))
-                            {
-                                SetRelationshipBetweenGroups(Relationship.Respect, relationshipGroup,
-                                    relationshipGroupAllies);
-                                SetRelationshipBetweenGroups(Relationship.Hate, relationshipGroup,
-                                    relationshipGroupEnemies);
-                            }
-                            else if (enemyRelationships.Contains(pedRelationshipWithPlayer))
-                            {
-                                SetRelationshipBetweenGroups(Relationship.Respect, relationshipGroup,
-                                    relationshipGroupEnemies);
-                                SetRelationshipBetweenGroups(Relationship.Hate, relationshipGroup,
-                                    relationshipGroupAllies);
-                            }
-                        }
-                    }
-                }
-            }*/
+                blip.Color = disabledBlipColor;
+            }
         }
 
         /// <summary>
@@ -529,12 +498,12 @@ namespace SimpleGangWar
         /// <param name="enumKey">The enum key as string</param>
         /// <param name="defaultValue">What enum option to return if the referenced enum key does not exist in the enum</param>
         /// <returns>The chosen enum option</returns>
-        /*private EnumType EnumParse<EnumType>(string enumKey, EnumType defaultValue) where EnumType : struct
+        private EnumType EnumParse<EnumType>(string enumKey, EnumType defaultValue) where EnumType : struct
         {
             EnumType returnValue;
             if (!Enum.TryParse(enumKey, true, out returnValue)) returnValue = defaultValue;
             return returnValue;
-        }*/
+        }
 
         /// <summary>
         /// Given a string of words to be split, split them and return a string array.
@@ -542,12 +511,38 @@ namespace SimpleGangWar
         /// <param name="stringInput">Input string</param>
         /// <param name="defaultArray">Array to return if the input string contains no items</param>
         /// <returns>A string array</returns>
-        /*private string[] ArrayParse(string stringInput, string[] defaultArray)
+        private string[] ArrayParse(string stringInput, string[] defaultArray)
         {
             string[] resultArray = stringInput.Replace(" ", string.Empty)
                 .Split(StringSeparators, StringSplitOptions.RemoveEmptyEntries);
             if (resultArray.Length == 0) resultArray = defaultArray;
             return resultArray;
-        }*/
+        }
+    }
+    
+    // Source: https://stackoverflow.com/a/14906422
+    class IniFile
+    {
+        private readonly string _path;
+
+        [DllImport("kernel32", CharSet = CharSet.Unicode)]
+        private static extern int GetPrivateProfileString(string section, string key, string defaultValue, StringBuilder retVal, int size, string filePath);
+
+        public IniFile(string iniPath) {
+            _path = new FileInfo(iniPath).FullName;
+        }
+
+        public T GetValue<T>(string section, string key, T defaultValue)
+        {
+            var readRaw = new StringBuilder(255);
+            GetPrivateProfileString(section, key, "", readRaw, 255, _path);
+            string readString = readRaw.ToString();
+            if (readString.Length == 0) {
+                return defaultValue;
+            }
+
+            var converter = TypeDescriptor.GetConverter(typeof(T));
+            return (T) converter.ConvertFromInvariantString(readString);
+        }
     }
 }

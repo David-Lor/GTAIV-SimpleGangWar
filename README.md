@@ -30,8 +30,9 @@ Settings can be defined on the `SimpleGangWar.ini` file, being the following:
 
 ### ALLIED_TEAM & ENEMY_TEAM
 
-_All lists of items (models & weapons) are separated by comma (`,`) or semi-colon (`;`). Spaces and case ignored._
+_All lists of items (models & weapons) are separated by comma (`,`) or semi-colon (`;`). Spaces and case ignored. **If any item name does not exist, SimpleGangWar will crash!**_
 
+- `Models`: list of ped models ([Reference](docs/PedModels.md))
 - `Weapons`: list of ped weapons ([Reference](docs/Weapons.md))
 - `Health`: health for peds (should not be less than 100; if -1, not changed)
 - `Armor`: armor for peds (from 0; if -1, not changed)

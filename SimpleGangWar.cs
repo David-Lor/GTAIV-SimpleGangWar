@@ -13,12 +13,12 @@ namespace SimpleGangWar
     {
         // Settings defined on script variables serve as fallback for settings not defined (or invalid) on .ini config file
 
-        // https://gtamods.com/wiki/List_of_models_hashes
+        // Models: see docs/PedModels.md | https://gtamods.com/wiki/List_of_models_hashes
         // Weapons: see docs/Weapons.md
 
-        private static Model[] pedsAllies = {"M_O_GRUS_HI_01", "M_Y_GRUS_LO_01", "M_Y_GRUS_LO_02", "M_Y_GRUS_HI_02", "M_M_GRU2_HI_01", "M_M_GRU2_HI_02", "M_M_GRU2_LO_02", "M_Y_GRU2_LO_01"};
+        private static string[] pedsAllies = {"M_O_GRUS_HI_01", "M_Y_GRUS_LO_01", "M_Y_GRUS_LO_02", "M_Y_GRUS_HI_02", "M_M_GRU2_HI_01", "M_M_GRU2_HI_02", "M_M_GRU2_LO_02", "M_Y_GRU2_LO_01"};
         private static string[] weaponsAllies = {"HANDGUN_GLOCK", "HANDGUN_DESERTEAGLE", "RIFLE_AK47", "SMG_UZI"};
-        private static Model[] pedsEnemies = {"M_M_GJAM_HI_01", "M_M_GJAM_HI_02", "M_M_GJAM_HI_03", "M_Y_GJAM_LO_01", "M_Y_GJAM_LO_02"};
+        private static string[] pedsEnemies = {"M_M_GJAM_HI_01", "M_M_GJAM_HI_02", "M_M_GJAM_HI_03", "M_Y_GJAM_LO_01", "M_Y_GJAM_LO_02"};
         private static string[] weaponsEnemies = {"HANDGUN_GLOCK", "RIFLE_M4", "SMG_MP5"};
 
         private static readonly char[] StringSeparators = {',', ';'};
@@ -117,6 +117,11 @@ namespace SimpleGangWar
             hotkey = EnumParse(configString, hotkey);
             configString = config.GetValue(SettingsHeader.General, "SpawnHotkey", "");
             spawnHotkey = EnumParse(configString, spawnHotkey);
+
+            configString = config.GetValue(SettingsHeader.Allies, "Models", "");
+            pedsAllies = ArrayParse(configString, pedsAllies);
+            configString = config.GetValue(SettingsHeader.Enemies, "Models", "");
+            pedsEnemies = ArrayParse(configString, pedsEnemies);
 
             configString = config.GetValue(SettingsHeader.Allies, "Weapons", "");
             weaponsAllies = ArrayParse(configString, weaponsAllies);
@@ -324,11 +329,13 @@ namespace SimpleGangWar
         private Ped SpawnRandomPed(bool alliedTeam)
         {
             Vector3 pedPosition = alliedTeam ? spawnpointAllies : spawnpointEnemies;
-            Model pedModel = RandomChoice(alliedTeam ? pedsAllies : pedsEnemies);
+            string pedName = RandomChoice(alliedTeam ? pedsAllies : pedsEnemies);
             string weaponName = RandomChoice(alliedTeam ? weaponsAllies : weaponsEnemies);
             Weapon weaponGive;
-            
+
             // TODO Verify names from arrays on script startup
+            // TODO Invalid ped models not warning as custom exception, but NullPointerException (seems that cannot assert pedModel == null)
+            Model pedModel = Model.FromString(pedName);
             if (!Enum.TryParse(weaponName, true, out weaponGive)) {
                 throw new FormatException("Weapon name " + weaponName + " does not exist!");
             }

@@ -150,6 +150,8 @@ namespace SimpleGangWar
                 spawnpointFloodLimitDistance);
 
             runToSpawnpoint = config.GetValue(SettingsHeader.General, "RunToSpawnpoint", runToSpawnpoint);
+            idleInterval = config.GetValue(SettingsHeader.General, "IdleInterval", idleInterval);
+            battleInterval = config.GetValue(SettingsHeader.General, "BattleInterval", battleInterval);
 
             /*
             configString = config.GetValue<string>(SettingsHeader.Allies, "CombatMovement", "");
@@ -179,8 +181,6 @@ namespace SimpleGangWar
             processOtherRelationshipGroups = config.GetValue(SettingsHeader.General, "ProcessOtherRelationshipGroups",
                 processOtherRelationshipGroups);
             neutralPlayer = config.GetValue(SettingsHeader.General, "NeutralPlayer", neutralPlayer);
-            idleInterval = config.GetValue(SettingsHeader.General, "IdleInterval", idleInterval);
-            battleInterval = config.GetValue(SettingsHeader.General, "BattleInterval", battleInterval);
             */
 
             World.SetGroupRelationship(RelationshipGroup.Player, Relationship.Respect, RelationshipGroup.Player);

@@ -47,6 +47,7 @@ _All lists of items (models & weapons) are separated by comma (`,`) or semi-colo
 - `MaxPedsPerTeam`: maximum alive peds on each team - teams with the setting MaxPeds will ignore this option (greater/equal to 0)
 - `SpawnpointFloodLimitPeds`: limit how many peds can be near its spawnpoint. If more than this quantity of peds are near the spawnpoint, no more peds on the team will spawn (greater than 0; if 0, not set)
 - `SpawnpointFloodLimitDistance`: in-game distance from a team spawnpoint to keep track of the SpawnpointFloodLimitPeds. Can be integer or decimal (if using decimals, use dot or comma depending on your system regional settings)
+- `RemoveDeadPeds`: if true, mark dead peds as no longer needed, making the game handle their cleanup; recommended to keep it enabled for long fights, as many persistent bodies may crash the game (true/false)
 - `RunToSpawnpoint`: if true, the peds task will be to run to their enemies' spawnpoint; if false, will be to fight hated targets on the area (true/false) (currently not working, fine, recommended to leave on false or remove).
 - Intervals: delay between loop runs. Lower values will have more precise results but also use more system resources. Default values are recommended. Two values are available, depending on the battle stage:
   - `IdleInterval`: when battle is not running

@@ -149,6 +149,7 @@ namespace SimpleGangWar
             spawnpointFloodLimitDistance = config.GetValue(SettingsHeader.General, "SpawnpointFloodLimitDistance",
                 spawnpointFloodLimitDistance);
 
+            removeDeadPeds = config.GetValue(SettingsHeader.General, "RemoveDeadPeds", removeDeadPeds);
             runToSpawnpoint = config.GetValue(SettingsHeader.General, "RunToSpawnpoint", runToSpawnpoint);
             idleInterval = config.GetValue(SettingsHeader.General, "IdleInterval", idleInterval);
             battleInterval = config.GetValue(SettingsHeader.General, "BattleInterval", battleInterval);
@@ -164,20 +165,9 @@ namespace SimpleGangWar
             configString = config.GetValue<string>(SettingsHeader.Enemies, "CombatRange", "");
             combatRangeEnemies = EnumParse(configString, combatRangeEnemies);
 
-            configString = config.GetValue<string>(SettingsHeader.Allies, "Weapons", "");
-            weaponsAllies = ArrayParse(configString, weaponsAllies);
-            configString = config.GetValue<string>(SettingsHeader.Enemies, "Weapons", "");
-            weaponsEnemies = ArrayParse(configString, weaponsEnemies);
-
-            configString = config.GetValue<string>(SettingsHeader.Allies, "Models", "");
-            pedsAllies = ArrayParse(configString, pedsAllies);
-            configString = config.GetValue<string>(SettingsHeader.Enemies, "Models", "");
-            pedsEnemies = ArrayParse(configString, pedsEnemies);
-
             noWantedLevel = config.GetValue(SettingsHeader.General, "NoWantedLevel", noWantedLevel);
             showBlipsOnPeds = config.GetValue(SettingsHeader.General, "ShowBlipsOnPeds", showBlipsOnPeds);
             dropWeaponOnDead = config.GetValue(SettingsHeader.General, "DropWeaponOnDead", dropWeaponOnDead);
-            removeDeadPeds = config.GetValue(SettingsHeader.General, "RemoveDeadPeds", removeDeadPeds);
             processOtherRelationshipGroups = config.GetValue(SettingsHeader.General, "ProcessOtherRelationshipGroups",
                 processOtherRelationshipGroups);
             neutralPlayer = config.GetValue(SettingsHeader.General, "NeutralPlayer", neutralPlayer);

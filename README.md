@@ -71,5 +71,7 @@ _All lists of items (models & weapons) are separated by comma (`,`) or semi-colo
 
 ## Changelog
 
+- 0.1.1
+  - Support for .ini config file, and multiple configurations from SimpleGangWar integrated
 - 0.0.1
   - Initial ported functional release; missing some features and support for config file

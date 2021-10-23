@@ -150,6 +150,7 @@ namespace SimpleGangWar
                 spawnpointFloodLimitDistance);
 
             removeDeadPeds = config.GetValue(SettingsHeader.General, "RemoveDeadPeds", removeDeadPeds);
+            showBlipsOnPeds = config.GetValue(SettingsHeader.General, "ShowBlipsOnPeds", showBlipsOnPeds);
             runToSpawnpoint = config.GetValue(SettingsHeader.General, "RunToSpawnpoint", runToSpawnpoint);
             idleInterval = config.GetValue(SettingsHeader.General, "IdleInterval", idleInterval);
             battleInterval = config.GetValue(SettingsHeader.General, "BattleInterval", battleInterval);
@@ -166,7 +167,6 @@ namespace SimpleGangWar
             combatRangeEnemies = EnumParse(configString, combatRangeEnemies);
 
             noWantedLevel = config.GetValue(SettingsHeader.General, "NoWantedLevel", noWantedLevel);
-            showBlipsOnPeds = config.GetValue(SettingsHeader.General, "ShowBlipsOnPeds", showBlipsOnPeds);
             dropWeaponOnDead = config.GetValue(SettingsHeader.General, "DropWeaponOnDead", dropWeaponOnDead);
             processOtherRelationshipGroups = config.GetValue(SettingsHeader.General, "ProcessOtherRelationshipGroups",
                 processOtherRelationshipGroups);

@@ -40,7 +40,7 @@ namespace SimpleGangWar
         private static bool runToSpawnpoint = false;
         private static bool processOtherRelationshipGroups = false;
         private static bool neutralPlayer = false;
-        private static int spawnpointFloodLimitPeds = -1;
+        private static int spawnpointFloodLimitPeds = 10;
         private static float spawnpointFloodLimitDistance = 8.0f;
         private static int idleInterval = 500;
         private static int battleInterval = 100;
@@ -144,6 +144,11 @@ namespace SimpleGangWar
             maxSpawnPedsAllies = config.GetValue(SettingsHeader.Allies, "MaxSpawnPeds", maxSpawnPedsAllies);
             maxSpawnPedsEnemies = config.GetValue(SettingsHeader.Enemies, "MaxSpawnPeds", maxSpawnPedsEnemies);
 
+            spawnpointFloodLimitPeds = config.GetValue(SettingsHeader.General, "SpawnpointFloodLimitPeds",
+                spawnpointFloodLimitPeds);
+            spawnpointFloodLimitDistance = config.GetValue(SettingsHeader.General, "SpawnpointFloodLimitDistance",
+                spawnpointFloodLimitDistance);
+
             runToSpawnpoint = config.GetValue(SettingsHeader.General, "RunToSpawnpoint", runToSpawnpoint);
 
             /*
@@ -174,10 +179,6 @@ namespace SimpleGangWar
             processOtherRelationshipGroups = config.GetValue(SettingsHeader.General, "ProcessOtherRelationshipGroups",
                 processOtherRelationshipGroups);
             neutralPlayer = config.GetValue(SettingsHeader.General, "NeutralPlayer", neutralPlayer);
-            spawnpointFloodLimitPeds = config.GetValue(SettingsHeader.General, "SpawnpointFloodLimitPeds",
-                spawnpointFloodLimitPeds);
-            spawnpointFloodLimitDistance = config.GetValue(SettingsHeader.General, "SpawnpointFloodLimitDistance",
-                spawnpointFloodLimitDistance);
             idleInterval = config.GetValue(SettingsHeader.General, "IdleInterval", idleInterval);
             battleInterval = config.GetValue(SettingsHeader.General, "BattleInterval", battleInterval);
             */
@@ -304,9 +305,6 @@ namespace SimpleGangWar
 
             // by MaxSpawnPeds limit
             if (maxSpawnPeds >= 0 && totalSpawnedPeds > maxSpawnPeds) return false;
-
-            return true;
-            // TODO continue validations
 
             // by SpawnpointFlood limit
             if (spawnpointFloodLimitPeds < 1) return true;

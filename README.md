@@ -38,6 +38,7 @@ _All lists of items (models & weapons) are separated by comma (`,`) or semi-colo
 - `Armor`: armor for peds (greater/equal to 0; if -1, not changed)
 - `Accuracy`: accuracy for peds (greater/equal to 0; if -1, not changed)
 - `MaxPeds`: maximum alive peds on the team at the same time (if not specified, the MaxPedsPerTeam setting will be used) (greater/equal to 0)
+- `MaxSpawnPeds`: limit of peds that will spawn on the team. When the limit is reached, no more peds on the team will spawn on the current battle for that team (greater/equal to 0; if -1, not set)
 
 ### SETTINGS
 

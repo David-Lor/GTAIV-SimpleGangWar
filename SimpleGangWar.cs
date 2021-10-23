@@ -46,8 +46,8 @@ namespace SimpleGangWar
         private static int battleInterval = 100;
         private static int maxPedsAllies = 10;
         private static int maxPedsEnemies = 10;
-        private static int maxSpawnPedsAllies = 5;
-        private static int maxSpawnPedsEnemies = 5;
+        private static int maxSpawnPedsAllies = -1;
+        private static int maxSpawnPedsEnemies = -1;
 
         // Settings that can be changed, but not supported on config file
 
@@ -141,6 +141,9 @@ namespace SimpleGangWar
             maxPedsAllies = config.GetValue(SettingsHeader.Allies, "MaxPeds", maxPedsPerTeam);
             maxPedsEnemies = config.GetValue(SettingsHeader.Enemies, "MaxPeds", maxPedsPerTeam);
 
+            maxSpawnPedsAllies = config.GetValue(SettingsHeader.Allies, "MaxSpawnPeds", maxSpawnPedsAllies);
+            maxSpawnPedsEnemies = config.GetValue(SettingsHeader.Enemies, "MaxSpawnPeds", maxSpawnPedsEnemies);
+
             runToSpawnpoint = config.GetValue(SettingsHeader.General, "RunToSpawnpoint", runToSpawnpoint);
 
             /*
@@ -177,9 +180,6 @@ namespace SimpleGangWar
                 spawnpointFloodLimitDistance);
             idleInterval = config.GetValue(SettingsHeader.General, "IdleInterval", idleInterval);
             battleInterval = config.GetValue(SettingsHeader.General, "BattleInterval", battleInterval);
-
-            maxSpawnPedsAllies = config.GetValue(SettingsHeader.Allies, "MaxSpawnPeds", maxSpawnPedsAllies);
-            maxSpawnPedsEnemies = config.GetValue(SettingsHeader.Enemies, "MaxSpawnPeds", maxSpawnPedsEnemies);
             */
 
             World.SetGroupRelationship(RelationshipGroup.Player, Relationship.Respect, RelationshipGroup.Player);
@@ -301,12 +301,12 @@ namespace SimpleGangWar
 
             // by MaxPeds in the team
             if (spawnedPedsList.Count >= maxPeds) return false;
-            return true;
-
-            // TODO continue validations
 
             // by MaxSpawnPeds limit
             if (maxSpawnPeds >= 0 && totalSpawnedPeds > maxSpawnPeds) return false;
+
+            return true;
+            // TODO continue validations
 
             // by SpawnpointFlood limit
             if (spawnpointFloodLimitPeds < 1) return true;

@@ -34,11 +34,8 @@ namespace SimpleGangWar
         private static Keys hotkey = Keys.F9;
         private static Keys spawnHotkey = Keys.F8;
         private static bool showBlipsOnPeds = true;
-        private static bool dropWeaponOnDead = false;
         private static bool removeDeadPeds = true;
         private static bool runToSpawnpoint = false;
-        private static bool processOtherRelationshipGroups = false;
-        private static bool neutralPlayer = false;
         private static int spawnpointFloodLimitPeds = 10;
         private static float spawnpointFloodLimitDistance = 8.0f;
         private static int idleInterval = 500;
@@ -50,25 +47,22 @@ namespace SimpleGangWar
 
         // Settings that can be changed, but not supported on config file
 
-        private static BlipColor allyBlipColor = BlipColor.Cyan;
-        private static BlipColor enemyBlipColor = BlipColor.Orange;
-        private static BlipColor disabledBlipColor = BlipColor.Grey;
+        private static readonly BlipColor allyBlipColor = BlipColor.Cyan;
+        private static readonly BlipColor enemyBlipColor = BlipColor.Orange;
+        private static readonly BlipColor disabledBlipColor = BlipColor.Grey;
         
         // From here, internal script variables - do not change!
 
-        private RelationshipGroup relationshipGroupEnemies = RelationshipGroup.NetworkPlayer_32;
-
-        private int originalWantedLevel;
+        private static readonly RelationshipGroup relationshipGroupEnemies = RelationshipGroup.NetworkPlayer_32;
 
         private int spawnedAlliesCounter;
         private int spawnedEnemiesCounter;
 
-        private List<Ped> spawnedAllies = new List<Ped>();
-        private List<Ped> spawnedEnemies = new List<Ped>();
-        private List<Ped> deadPeds = new List<Ped>();
-        private List<Ped> pedsRemove = new List<Ped>();
-        private List<int> processedRelationshipGroups = new List<int>();
-        private Dictionary<Ped, Blip> pedsBlips = new Dictionary<Ped, Blip>();
+        private readonly List<Ped> spawnedAllies = new List<Ped>();
+        private readonly List<Ped> spawnedEnemies = new List<Ped>();
+        private readonly List<Ped> deadPeds = new List<Ped>();
+        private readonly List<Ped> pedsRemove = new List<Ped>();
+        private readonly Dictionary<Ped, Blip> pedsBlips = new Dictionary<Ped, Blip>();
 
         private bool spawnEnabled = true;
         private Stage stage = Stage.Initial;
@@ -79,10 +73,6 @@ namespace SimpleGangWar
 
         private Blip spawnpointBlipAllies;
         private Blip spawnpointBlipEnemies;
-
-        private static Relationship[] allyRelationships = {Relationship.Companion, Relationship.Like, Relationship.Respect};
-
-        private static Relationship[] enemyRelationships = {Relationship.Hate, Relationship.Dislike};
 
         private static Random random;
 
@@ -316,15 +306,9 @@ namespace SimpleGangWar
             int health = ped.MaxHealth = alliedTeam ? healthAllies : healthEnemies;
             int armor = alliedTeam ? armorAllies : armorEnemies;
             int accuracy = ped.Accuracy = alliedTeam ? accuracyAllies : accuracyEnemies;
-            if (health >= 0) {
-                ped.Health = health;
-            }
-            if (armor >= 0) {
-                ped.Armor = armor;
-            }
-            if (accuracy >= 0) {
-                ped.Accuracy = accuracy;
-            }
+            if (health >= 0) ped.Health = health;
+            if (armor >= 0) ped.Armor = armor;
+            if (accuracy >= 0) ped.Accuracy = accuracy;
 
             ped.Money = 0;
             ped.RelationshipGroup = alliedTeam ? RelationshipGroup.Player : relationshipGroupEnemies;
@@ -477,7 +461,6 @@ namespace SimpleGangWar
             spawnedEnemies.Clear();
             deadPeds.Clear();
             pedsRemove.Clear();
-            processedRelationshipGroups.Clear();
         }
 
         /// <summary>

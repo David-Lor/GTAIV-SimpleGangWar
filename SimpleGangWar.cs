@@ -142,6 +142,8 @@ namespace SimpleGangWar
 
             World.SetGroupRelationship(RelationshipGroup.Player, Relationship.Respect, RelationshipGroup.Player);
             World.SetGroupRelationship(RelationshipGroup.Player, Relationship.Hate, relationshipGroupEnemies);
+            World.SetGroupRelationship(relationshipGroupEnemies, Relationship.Respect, relationshipGroupEnemies);
+            World.SetGroupRelationship(relationshipGroupEnemies, Relationship.Hate, RelationshipGroup.Player);
 
             random = new Random();
 

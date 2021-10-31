@@ -24,6 +24,22 @@ The key `F9` ("Hotkey") is used to navigate through all the steps of the script.
 
 An additional hotkey `F8` ("SpawnHotkey") is used to pause/resume the ped spawning in both teams.
 
+### Battle functionality
+
+- When the battle starts, peds from both teams will spawn on their respective spawnpoints, and start fighting their adversaries.
+- As peds get killed¹, new peds are spawned on the respective team spawnpoint as replacements.
+- The settings "MaxPeds"/"MaxPedsPerTeam" are used to determine how many peds can be fighting on each team at the same time, regulating the respawn rate of reinforcements.
+
+¹ _In this GTA IV implementation, peds that are "Wounded In Action" are treated as killed - this means peds that are still alive, but hurt and bleeding on the floor, unable to keep fighting.
+Notice that in GTAV and RDR2, wounded peds remain alive for a small time, while in GTA IV they can remain for longer (forever?)._
+
+#### Ending a battle
+
+- Different mechanisms are provided for making a battle end naturally. This is done by making one ped run out of peds, by disabling the respawning (on that team or both teams) and having all their members killed.
+- The battle can be paused and resumed any time with the "SpawnHotkey" - the existing peds will keep fighting, but no more peds will spawn on any of the teams.
+- The setting "MaxSpawnPeds" can be used for limiting the amount of replacements that will spawn for a team. Please notice that this will NOT spawn any more peds on the team that reaches this limit for the current battle, even if pausing/resuming it with the "SpawnHotkey".
+- When the battle is definitively ended (using the main hotkey to navigate between the different stages of the script), all the peds (both alive and killed/downed) are instantly removed from the game.
+
 ## Settings
 
 Settings can be defined on the `SimpleGangWar.ini` file, being the following:
@@ -32,8 +48,9 @@ Settings can be defined on the `SimpleGangWar.ini` file, being the following:
 
 _All lists of items (models & weapons) are separated by comma (`,`) or semi-colon (`;`). Spaces and case ignored. **If any item name does not exist, SimpleGangWar will crash!**_
 
-- `Models`: list of ped models ([Reference](docs/PedModels.md))
-- `Weapons`: list of ped weapons ([Reference](docs/Weapons.md))
+- Ped models and weapons: each ped will spawn with a random Ped Model and Weapon, chosen from the configured Models and Weapons lists.
+  - `Models`: list of ped models ([Reference](docs/PedModels.md))
+  - `Weapons`: list of ped weapons ([Reference](docs/Weapons.md))
 - `Health`: health for peds (should not be less than 100; if -1, not changed)
 - `Armor`: armor for peds (greater/equal to 0; if -1, not changed)
 - `Accuracy`: accuracy for peds (greater/equal to 0; if -1, not changed)
@@ -56,8 +73,9 @@ _All lists of items (models & weapons) are separated by comma (`,`) or semi-colo
 
 ## Known bugs
 
-- First spawned peds may stand still and not fight. A possible workaround is to bump into them, or kill them.
-- RunToSpawnpoint=true is not working fine; peds usually keep stuttering forever, or slow-walk into the enemies.
+This is a list of known issues that are currently not being tracked, or are unfixable. Other bugs that may get fixed in the future are listed on [Issues](https://github.com/David-Lor/GTAIV-SimpleGangWar/issues).
+
+- RunToSpawnpoint=true is not working fine; peds usually keep stuttering forever, or slow-walk into the enemies. For now it's recommended to keep this setting disabled, as peds seem to fight well with the defaul behaviour.
 - Peds may not fight if spawnpoints are too far.
 - Usage during missions may cause different problems:
   - Allies may not follow the player

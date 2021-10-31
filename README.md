@@ -83,6 +83,13 @@ This is a list of known issues that are currently not being tracked, or are unfi
 
 ## Changelog
 
+- 0.1.2
+  - fix: wounded (no longer fighting) peds are now counted as killed (so reinforcements can respawn)
+  - fix: peds blips not being deleted on ped kill
+  - fix: script crash when processing spawned peds that no longer exist
+  - refactor: new Fighter class that holds info about each spawned ped (Ped object, Blip object, team); this allows fixing some of the bugs solved on this version
+  - style: refactor code style
+  - docs(README): describe how the battle works; describe difference between Known Bugs and Github Issues
 - 0.1.1
   - Support for .ini config file, and multiple configurations from SimpleGangWar integrated
 - 0.0.1

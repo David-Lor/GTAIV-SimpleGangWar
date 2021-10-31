@@ -58,11 +58,10 @@ namespace SimpleGangWar
         private int spawnedAlliesCounter;
         private int spawnedEnemiesCounter;
 
-        private readonly List<Ped> spawnedAllies = new List<Ped>();
-        private readonly List<Ped> spawnedEnemies = new List<Ped>();
-        private readonly List<Ped> deadPeds = new List<Ped>();
-        private readonly List<Ped> pedsRemove = new List<Ped>();
-        private readonly Dictionary<Ped, Blip> pedsBlips = new Dictionary<Ped, Blip>();
+        private readonly List<Fighter> spawnedAllies = new List<Fighter>();
+        private readonly List<Fighter> spawnedEnemies = new List<Fighter>();
+        private readonly List<Fighter> deadPeds = new List<Fighter>();
+        private readonly List<Fighter> pedsRemove = new List<Fighter>();
 
         private bool spawnEnabled = true;
         private Stage stage = Stage.Initial;
@@ -142,6 +141,8 @@ namespace SimpleGangWar
 
             World.SetGroupRelationship(RelationshipGroup.Player, Relationship.Respect, RelationshipGroup.Player);
             World.SetGroupRelationship(RelationshipGroup.Player, Relationship.Hate, relationshipGroupEnemies);
+            World.SetGroupRelationship(relationshipGroupEnemies, Relationship.Respect, relationshipGroupEnemies);
+            World.SetGroupRelationship(relationshipGroupEnemies, Relationship.Hate, RelationshipGroup.Player);
 
             random = new Random();
 
@@ -237,7 +238,7 @@ namespace SimpleGangWar
         /// </summary>
         /// <param name="alliedTeam">true=ally team / false=enemy team</param>
         private bool CanPedsSpawn(bool alliedTeam) {
-            List<Ped> spawnedPedsList = alliedTeam ? spawnedAllies : spawnedEnemies;
+            List<Fighter> spawnedPedsList = alliedTeam ? spawnedAllies : spawnedEnemies;
             int maxPeds = alliedTeam ? maxPedsAllies : maxPedsEnemies;
             int maxSpawnPeds = alliedTeam ? maxSpawnPedsAllies : maxSpawnPedsEnemies;
             int totalSpawnedPeds = alliedTeam ? spawnedAlliesCounter : spawnedEnemiesCounter;
@@ -250,13 +251,16 @@ namespace SimpleGangWar
 
             // by SpawnpointFlood limit
             if (spawnpointFloodLimitPeds < 1) return true;
-
+            
             Vector3 spawnpointPosition = alliedTeam ? spawnpointAllies : spawnpointEnemies;
             Ped[] pedsNearSpawnpoint = World.GetPeds(spawnpointPosition, spawnpointFloodLimitDistance);
+            Dictionary<Ped, Fighter> fightersPeds = FightersToPeds(spawnedPedsList);
 
             int pedsNearSpawnpointCount = 0;
             foreach (Ped ped in pedsNearSpawnpoint) {
-                if (ped.isAlive && spawnedPedsList.Contains(ped)) pedsNearSpawnpointCount++;
+                Fighter fighter;
+                if (!fightersPeds.TryGetValue(ped, out fighter)) continue;
+                if (fighter.CanFight() && spawnedPedsList.Contains(fighter)) pedsNearSpawnpointCount++;
             }
 
             return pedsNearSpawnpointCount < spawnpointFloodLimitPeds;
@@ -294,13 +298,10 @@ namespace SimpleGangWar
             ped.Money = 0;
             ped.RelationshipGroup = alliedTeam ? RelationshipGroup.Player : relationshipGroupEnemies;
 
+            Fighter fighter = new Fighter(ped, alliedTeam);
+
             if (showBlipsOnPeds) {
-                Blip blip = ped.AttachBlip();
-                blip.Color = alliedTeam ? BlipColor.Cyan : BlipColor.Orange;
-                blip.Name = alliedTeam ? "Ally team member" : "Enemy team member";
-                blip.Display = BlipDisplay.MapOnly;
-                blip.Scale = 0.5f;
-                pedsBlips.Add(ped, blip);
+                fighter.SetBlip();
             }
 
             ped.Task.ClearAllImmediately();
@@ -309,10 +310,10 @@ namespace SimpleGangWar
             else ped.Task.FightAgainstHatedTargets(spawnpointsDistance);
 
             if (alliedTeam) {
-                spawnedAllies.Add(ped);
+                spawnedAllies.Add(fighter);
                 spawnedAlliesCounter++;
             } else {
-                spawnedEnemies.Add(ped);
+                spawnedEnemies.Add(fighter);
                 spawnedEnemiesCounter++;
             }
 
@@ -324,17 +325,14 @@ namespace SimpleGangWar
         /// </summary>
         /// <param name="alliedTeam">true=ally team / false=enemy team</param>
         private void ProcessSpawnedPeds(bool alliedTeam) {
-            List<Ped> pedList = alliedTeam ? spawnedAllies : spawnedEnemies;
+            List<Fighter> pedList = alliedTeam ? spawnedAllies : spawnedEnemies;
 
-            foreach (Ped ped in pedList) {
-                if (ped.isDead) {
-                    Blip pedBlip;
-                    if (pedsBlips.TryGetValue(ped, out pedBlip)) {
-                            pedBlip.Delete();
-                    }
-
-                    pedsRemove.Add(ped);
-                    deadPeds.Add(ped);
+            foreach (Fighter fighter in pedList) {
+                Ped ped = fighter.ped;
+                if (!fighter.CanFight()) {
+                    fighter.DeleteBlip();
+                    pedsRemove.Add(fighter);
+                    deadPeds.Add(fighter);
                     if (removeDeadPeds) ped.NoLongerNeeded();
                 } else if (ped.isIdle) {
                     // TODO this check can make peds stutter forever if runToSpawnpoint=true:
@@ -343,12 +341,11 @@ namespace SimpleGangWar
                 }
             }
 
-            foreach (Ped ped in pedsRemove) {
-                pedList.Remove(ped);
+            foreach (Fighter fighter in pedsRemove) {
+                pedList.Remove(fighter);
             }
 
             pedsRemove.Clear();
-            pedsBlips.Clear();
         }
 
         /// <summary>
@@ -399,9 +396,9 @@ namespace SimpleGangWar
         /// Physically delete the peds from the given list from the game world.
         /// </summary>
         /// <param name="pedList">List of peds to teardown</param>
-        private void TeardownPeds(List<Ped> pedList) {
-            foreach (Ped ped in pedList) {
-                if (ped.Exists()) ped.Delete();
+        private void TeardownPeds(List<Fighter> pedList) {
+            foreach (Fighter fighter in pedList) {
+                if (fighter.ped.Exists()) fighter.ped.Delete();
             }
         }
 
@@ -457,6 +454,53 @@ namespace SimpleGangWar
                 .Split(StringSeparators, StringSplitOptions.RemoveEmptyEntries);
             if (resultArray.Length == 0) resultArray = defaultArray;
             return resultArray;
+        }
+
+        /// <summary>
+        /// Given a List of Fighters, return a Dictionary associating Ped:Fighter.
+        /// </summary>
+        /// <returns>Dictionary Ped:Fighter</returns>
+        private Dictionary<Ped, Fighter> FightersToPeds(List<Fighter> fighters) {
+            Dictionary<Ped, Fighter> dict = new Dictionary<Ped, Fighter>();
+            foreach (Fighter fighter in fighters) {
+                dict.Add(fighter.ped, fighter);
+            }
+
+            return dict;
+        }
+    }
+
+    /// <summary>
+    /// Spawned ped
+    /// </summary>
+    class Fighter
+    {
+        public readonly bool allied;
+        public readonly Ped ped;
+        public Blip blip;
+
+        public Fighter(Ped ped, bool allied) {
+            this.ped = ped;
+            this.allied = allied;
+        }
+
+        public void SetBlip() {
+            blip = ped.AttachBlip();
+            blip.Color = allied ? BlipColor.Cyan : BlipColor.Orange;
+            blip.Name = allied ? "Ally team member" : "Enemy team member";
+            blip.Display = BlipDisplay.MapOnly;
+            blip.Scale = 0.5f;
+        }
+
+        public void DeleteBlip() {
+            if (blip != null) {
+                blip.Delete();
+                blip = null;
+            }
+        }
+
+        public bool CanFight() {
+            return ped.Exists() && ped.isAliveAndWell;
         }
     }
     

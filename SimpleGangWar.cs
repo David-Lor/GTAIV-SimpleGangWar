@@ -50,7 +50,8 @@ namespace SimpleGangWar
         private static readonly BlipColor allyBlipColor = BlipColor.Cyan;
         private static readonly BlipColor enemyBlipColor = BlipColor.Orange;
         private static readonly BlipColor disabledBlipColor = BlipColor.Grey;
-        
+        private static readonly String randomPedModelName = "random";
+
         // From here, internal script variables - do not change!
 
         private static readonly RelationshipGroup relationshipGroupEnemies = RelationshipGroup.NetworkPlayer_32;
@@ -275,16 +276,22 @@ namespace SimpleGangWar
             Vector3 pedPosition = alliedTeam ? spawnpointAllies : spawnpointEnemies;
             string pedName = RandomChoice(alliedTeam ? pedsAllies : pedsEnemies);
             string weaponName = RandomChoice(alliedTeam ? weaponsAllies : weaponsEnemies);
-            Weapon weaponGive;
 
-            // TODO Verify names from arrays on script startup
-            // TODO Invalid ped models not warning as custom exception, but NullPointerException (seems that cannot assert pedModel == null)
-            Model pedModel = Model.FromString(pedName);
+            Weapon weaponGive;
             if (!Enum.TryParse(weaponName, true, out weaponGive)) {
                 throw new FormatException("Weapon name " + weaponName + " does not exist!");
             }
 
-            Ped ped = World.CreatePed(pedModel, pedPosition);
+            Ped ped;
+            if (pedName.ToLower().Equals(randomPedModelName)) {
+                ped = World.CreatePed(pedPosition);
+            } else {
+                // TODO Verify names from arrays on script startup
+                // TODO Invalid ped models not warning as custom exception, but NullPointerException (seems that cannot assert pedModel == null)
+                Model pedModel = Model.FromString(pedName);
+                ped = World.CreatePed(pedModel, pedPosition);
+            }
+
             ped.Weapons.Select(weaponGive);
             ped.Weapons.Current.Ammo = Int32.MaxValue;
 

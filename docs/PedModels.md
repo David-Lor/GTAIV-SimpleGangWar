@@ -1,6 +1,10 @@
 ﻿# Ped Models
 
-_This list sources from [GTAMods.com](https://gtamods.com/wiki/List_of_models_hashes), licensed under [Creative Commons Attribution](https://creativecommons.org/licenses/by/4.0/)._
+There's an additional Model name `RANDOM`, that can be used to spawn a random model not defined on the config file.
+The model chosen is based on the civilians that inhabit the neighbourhood where the fight is located.
+This special Model can be used together with other specific peds model; e.g. if setting `RANDOM, M_Y_DEALER`, each spawned ped will randomly spawn as either `M_Y_DEALER`, or a random model chosen by the game.
+
+_The following list sources from [GTAMods.com](https://gtamods.com/wiki/List_of_models_hashes), licensed under [Creative Commons Attribution](https://creativecommons.org/licenses/by/4.0/)._
 
 | Model Name          | Game  |
 | ------------------- | ----- |

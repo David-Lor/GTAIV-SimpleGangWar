@@ -38,7 +38,7 @@ def _extract_tag(pr_data: dict) -> Optional[str]:
 
     for line in pr_body.splitlines():
         line = line.strip().lower()
-        if line.startswith("tag ") or line.startswith("tag "):
+        if line.startswith("tag ") or line.startswith("tags "):
             for chunk in line.split():
                 chunk = chunk.strip()
                 if _is_valid_version(chunk):

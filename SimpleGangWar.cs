@@ -36,6 +36,7 @@ namespace SimpleGangWar
         private static bool showBlipsOnPeds = true;
         private static bool removeDeadPeds = true;
         private static bool runToSpawnpoint = false;
+        private static bool enemiesRespectOtherGroups = false;
         private static int spawnpointFloodLimitPeds = 10;
         private static float spawnpointFloodLimitDistance = 8.0f;
         private static int idleInterval = 500;
@@ -50,9 +51,14 @@ namespace SimpleGangWar
         private static readonly BlipColor allyBlipColor = BlipColor.Cyan;
         private static readonly BlipColor enemyBlipColor = BlipColor.Orange;
         private static readonly BlipColor disabledBlipColor = BlipColor.Grey;
-        
+        private static readonly String randomPedModelName = "random";
+
         // From here, internal script variables - do not change!
 
+        /**
+         * Since GTA IV (looks like) does not allow creating custom RelationshipGroups, we use a random group.
+         * NetworkPlayer = used for online? So it should be safe on SP.
+         */
         private static readonly RelationshipGroup relationshipGroupEnemies = RelationshipGroup.NetworkPlayer_32;
 
         private int spawnedAlliesCounter;
@@ -133,6 +139,7 @@ namespace SimpleGangWar
             spawnpointFloodLimitDistance = config.GetValue(SettingsHeader.General, "SpawnpointFloodLimitDistance",
                 spawnpointFloodLimitDistance);
 
+            enemiesRespectOtherGroups = config.GetValue(SettingsHeader.General, "EnemiesRespectOtherGroups", enemiesRespectOtherGroups);
             removeDeadPeds = config.GetValue(SettingsHeader.General, "RemoveDeadPeds", removeDeadPeds);
             showBlipsOnPeds = config.GetValue(SettingsHeader.General, "ShowBlipsOnPeds", showBlipsOnPeds);
             runToSpawnpoint = config.GetValue(SettingsHeader.General, "RunToSpawnpoint", runToSpawnpoint);
@@ -143,6 +150,16 @@ namespace SimpleGangWar
             World.SetGroupRelationship(RelationshipGroup.Player, Relationship.Hate, relationshipGroupEnemies);
             World.SetGroupRelationship(relationshipGroupEnemies, Relationship.Respect, relationshipGroupEnemies);
             World.SetGroupRelationship(relationshipGroupEnemies, Relationship.Hate, RelationshipGroup.Player);
+
+            if (enemiesRespectOtherGroups) {
+                foreach (RelationshipGroup relationshipGroup in Enum.GetValues(typeof(RelationshipGroup))) {
+                    if (relationshipGroup == RelationshipGroup.Player ||
+                        relationshipGroup == relationshipGroupEnemies ||
+                        relationshipGroup == RelationshipGroup.Cop) continue;
+                    World.SetGroupRelationship(relationshipGroup, Relationship.Respect, relationshipGroupEnemies);
+                    World.SetGroupRelationship(relationshipGroupEnemies, Relationship.Respect, relationshipGroup);
+                }
+            }
 
             random = new Random();
 
@@ -275,16 +292,22 @@ namespace SimpleGangWar
             Vector3 pedPosition = alliedTeam ? spawnpointAllies : spawnpointEnemies;
             string pedName = RandomChoice(alliedTeam ? pedsAllies : pedsEnemies);
             string weaponName = RandomChoice(alliedTeam ? weaponsAllies : weaponsEnemies);
-            Weapon weaponGive;
 
-            // TODO Verify names from arrays on script startup
-            // TODO Invalid ped models not warning as custom exception, but NullPointerException (seems that cannot assert pedModel == null)
-            Model pedModel = Model.FromString(pedName);
+            Weapon weaponGive;
             if (!Enum.TryParse(weaponName, true, out weaponGive)) {
                 throw new FormatException("Weapon name " + weaponName + " does not exist!");
             }
 
-            Ped ped = World.CreatePed(pedModel, pedPosition);
+            Ped ped;
+            if (pedName.ToLower().Equals(randomPedModelName)) {
+                ped = World.CreatePed(pedPosition);
+            } else {
+                // TODO Verify names from arrays on script startup
+                // TODO Invalid ped models not warning as custom exception, but NullPointerException (seems that cannot assert pedModel == null)
+                Model pedModel = Model.FromString(pedName);
+                ped = World.CreatePed(pedModel, pedPosition);
+            }
+
             ped.Weapons.Select(weaponGive);
             ped.Weapons.Current.Ammo = Int32.MaxValue;
 

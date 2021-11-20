@@ -62,6 +62,8 @@ _All lists of items (models & weapons) are separated by comma (`,`) or semi-colo
 - `Hotkey`: the single hotkey used to iterate over the script stages ([Reference](https://docs.microsoft.com/en-us/dotnet/api/system.windows.input.key?view=netcore-3.1#fields))
 - `SpawnHotkey`: hotkey used to pause/resume ped spawn in both teams ([Reference](https://docs.microsoft.com/en-us/dotnet/api/system.windows.input.key?view=netcore-3.1#fields))
 - `MaxPedsPerTeam`: maximum alive peds on each team - teams with the setting MaxPeds will ignore this option (greater/equal to 0)
+- `EnemiesRespectOtherGroups`: experimental quickfix that should allow integrating SimpleGangWar during missions involving fighting enemies (making SimpleGangWar enemies cooperate with mission enemies).
+  Without it, SimpleGangWar enemy peds would fight mission enemies. This setting enabled will make the enemy team RelationshipGroup respect all the other Groups of the game except for the Player and Cops groups (true/false)
 - `SpawnpointFloodLimitPeds`: limit how many peds can be near its spawnpoint. If more than this quantity of peds are near the spawnpoint, no more peds on the team will spawn (greater than 0; if 0, not set)
 - `SpawnpointFloodLimitDistance`: in-game distance from a team spawnpoint to keep track of the SpawnpointFloodLimitPeds. Can be integer or decimal (if using decimals, use dot or comma depending on your system regional settings)
 - `ShowBlipsOnPeds`: if true, each spawned ped will have a blip on the map (true/false)
@@ -78,11 +80,14 @@ This is a list of known issues that are currently not being tracked, or are unfi
 - RunToSpawnpoint=true is not working fine; peds usually keep stuttering forever, or slow-walk into the enemies. For now it's recommended to keep this setting disabled, as peds seem to fight well with the defaul behaviour.
 - Peds may not fight if spawnpoints are too far.
 - Usage during missions may cause different problems:
-  - Allies may not follow the player
+  - Allies may not follow the player (this may happen when setting the battle before the mission, but setting it during the mission may work - tested on "Deconstruction for Beginners")
   - Mission and SimpleGangWar enemies may fight each other (this may be fixed when implementing the ProcessOtherRelationshipGroups feature)
 
 ## Changelog
 
+- 0.2.1
+  - feature: EnemiesRespectOtherGroups (quickfix to make enemy team cooperate with enemies during missions)
+  - feature: spawn random peds (models chosen by the game, depending on the neighbourhood)
 - 0.1.2
   - fix: wounded (no longer fighting) peds are now counted as killed (so reinforcements can respawn)
   - fix: peds blips not being deleted on ped kill

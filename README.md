@@ -85,6 +85,9 @@ This is a list of known issues that are currently not being tracked, or are unfi
 
 ## Changelog
 
+- 0.2.1
+  - feature: EnemiesRespectOtherGroups (quickfix to make enemy team cooperate with enemies during missions)
+  - feature: spawn random peds (models chosen by the game, depending on the neighbourhood)
 - 0.1.2
   - fix: wounded (no longer fighting) peds are now counted as killed (so reinforcements can respawn)
   - fix: peds blips not being deleted on ped kill
